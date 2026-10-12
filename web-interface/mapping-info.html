@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Mapping Information</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .header h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .nav-buttons {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .nav-buttons a {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 0 10px;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+
+        .nav-buttons a:hover {
+            background: #5a6fd8;
+        }
+
+        .summary {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .summary-item {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            min-width: 150px;
+        }
+
+        .summary-item h3 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-item p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .test-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: #fafafa;
+            position: relative;
+        }
+
+        .test-card.available {
+            border-left: 5px solid #28a745;
+        }
+
+        .test-card.unavailable {
+            border-left: 5px solid #dc3545;
+            opacity: 0.7;
+        }
+
+        .test-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .test-subtitle {
+            color: #666;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 5px;
+            border-left: 3px solid #667eea;
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-value {
+            color: #666;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .test-steps {
+            background: white;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+
+        .test-steps h4 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .steps-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .step-item {
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 3px;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-unavailable {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🗺️ Test Mapping Information</h1>
+            <p>Complete overview of test cases, data sources, and result mappings</p>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="/">🏠 Back to Main Page</a>
+            <a href="#" onclick="refreshMapping()">🔄 Refresh Data</a>
+        </div>
+
+        <div id="summarySection" class="summary">
+            <!-- Summary will be populated by JavaScript -->
+        </div>
+
+        <div id="loadingSection" class="loading">
+            <h3>Loading mapping information...</h3>
+        </div>
+
+        <div id="errorSection" class="error" style="display: none;">
+            <!-- Error messages will appear here -->
+        </div>
+
+        <div id="mappingSection">
+            <!-- Test mappings will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        async function loadMappingInfo() {
+            try {
+                document.getElementById('loadingSection').style.display = 'block';
+                document.getElementById('errorSection').style.display = 'none';
+                
+                const response = await fetch('/api/test-mapping');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                displaySummary(data);
+                displayMappings(data.testMappings);
+                
+                document.getElementById('loadingSection').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error loading mapping info:', error);
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('errorSection').style.display = 'block';
+                document.getElementById('errorSection').innerHTML = `
+                    <strong>Error loading mapping information:</strong> ${error.message}
+                `;
+            }
+        }
+
+        function displaySummary(data) {
+            const summaryHtml = `
+                <div class="summary-item">
+                    <h3>${data.totalTests}</h3>
+                    <p>Total Test Suites</p>
+                </div>
+                <div class="summary-item">
+                    <h3>${data.availableTests}</h3>
+                    <p>Available Tests</p>
+                </div>
+                <div class="summary-item">
+                    <h3>${data.totalTests - data.availableTests}</h3>
+                    <p>Missing Files</p>
+                </div>
+            `;
+            document.getElementById('summarySection').innerHTML = summaryHtml;
+        }
+
+        function displayMappings(mappings) {
+            const mappingsHtml = mappings.map(mapping => `
+                <div class="test-card ${mapping.exists ? 'available' : 'unavailable'}">
+                    <span class="status-badge ${mapping.exists ? 'status-available' : 'status-unavailable'}">
+                        ${mapping.exists ? 'Available' : 'Missing'}
+                    </span>
+                    
+                    <div class="test-title">${mapping.name}</div>
+                    <div class="test-subtitle">${mapping.description}</div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Test File</div>
+                            <div class="info-value">${mapping.testFile}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Excel Data Source</div>
+                            <div class="info-value">${mapping.excelDataSource}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Result File</div>
+                            <div class="info-value">${mapping.resultFile}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">Result Pattern</div>
+                            <div class="info-value">${mapping.resultPattern}</div>
+                        </div>
+                        
+                        ${mapping.maxRecords ? `
+                        <div class="info-item">
+                            <div class="info-label">Max Records</div>
+                            <div class="info-value">${mapping.maxRecords}</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${mapping.excelSheets && mapping.excelSheets.length > 0 ? `
+                    <div class="test-steps">
+                        <h4>📊 Excel Sheets Used:</h4>
+                        <div class="steps-list">
+                            ${mapping.excelSheets.map(sheet => `<div class="step-item">${sheet}</div>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    ${mapping.testSteps && mapping.testSteps.length > 0 ? `
+                    <div class="test-steps">
+                        <h4>🔄 Test Execution Steps:</h4>
+                        <div class="steps-list">
+                            ${mapping.testSteps.map((step, index) => `<div class="step-item">${index + 1}. ${step}</div>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+            
+            document.getElementById('mappingSection').innerHTML = mappingsHtml;
+        }
+
+        function refreshMapping() {
+            loadMappingInfo();
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', loadMappingInfo);
+    </script>
+</body>
+</html>
