@@ -221,14 +221,6 @@ export function getExpectedFilePattern(lob) {
  */
 export function getLOBDisplayName(lob) {
     const displayNames = {
-        'GPA_Dwelling_Basic': 'GPA Dwelling Basic',
-        'GPA_Dwelling_Special': 'GPA Dwelling Special',
-        'GPA_HomeOwners': 'GPA HomeOwners',
-        'GPA_Manufactured_Home': 'GPA Manufactured Home',
-        'GPA_Boat': 'GPA Boat',
-        'GPA_Yacht': 'GPA Yacht',
-        'GPA_CV': 'GPA Collector Vehicle',
-        'GPA_MS': 'GPA Motorsports',
         'Core_Dwelling_Basic': 'Core Dwelling Basic',
         'Core_Dwelling_Special': 'Core Dwelling Special',
         'Core_Manufactured_Home': 'Core Manufactured Home',

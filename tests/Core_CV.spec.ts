@@ -5,7 +5,7 @@ import {
 } from "../utils/locator-utils";
 import path from "path";
 import * as AccountPage from "../pages/Core/AccountCreation_CorePage";
-import * as LoginPage from "../pages/GPA/Residential/LoginPage";
+import * as LoginPage from "../pages/Core/LoginPage";
 import * as RiskAnalysisPage from "../pages/Core/RiskAnalysis_CorePage";
 import * as CV_qualification_CorePage from "../pages/Core/Recreational/CV_qualification_CorePage";
 import * as CV_policyInfo_CorePage from "../pages/Core/Recreational/CV_policyInfo_CorePage";
@@ -21,7 +21,7 @@ import { errorWordingValidation, getActualUIValidationErrors, getValidationError
 import { resolveExcelPath, resolveResultPath, validateExcelFile, createAutoConfig } from "../utils/excel-path-resolver";
 import { ValidationResult } from "../utils/ruleBasedValidation";
 import { wait } from "../utils/action-utils";
-import { initQuestionMapper } from "../utils/questionTextMapper";
+import { initQuestionMapper, initQuestionMapperFromJson } from "../utils/questionTextMapper";
 import { executionAbortFile, isExecutionAborted, markExecutionAborted } from "../utils/abort-helper";
 import fs from "fs";
 import { emitExecutionEvent } from "../utils/execution-event";
@@ -170,7 +170,7 @@ function initializeExcelData() {
   // Validate Excel file exists
   validateExcelFile(excelPath);
 
-  initQuestionMapper(excelPath, "Sheets_Help");
+  initQuestionMapperFromJson();
   // Load all Excel data
   const allSummaryRecords = readExcelfile(excelPath, "Summary");
 

@@ -29,11 +29,10 @@ import {
   TIMEOUT_8_SECONDS,
 } from "../../utils/timeout-constants";
 import { getText, isElementVisible } from "../../utils/element-utils";
-import { errorWordingValidationCore, warningsWordingValidationCore } from "../../utils/wordingValidation";
 import { validateRulesForTestCase, ValidationResult } from "../../utils/coreRuleBasedValidation";
 import { waitForPageReady } from "./RiskAnalysis_CorePage";
 import { createAutoQuestionFetcher } from "../../utils/questionTextMapper";
-import { getCalculateButton, getConstructionTypeDropDownMSB, getEditButtoninMSB, getFinishedLivingArea_MSB, getFoundationTypeMSB, getMoreButton, getMoreforConstructionType, getMoreforPrimaryHeating, getMSBYearBuilt, getNumberOfStoriesMSB, getPrimaryHeating_MSB_DropDown, getRoofCoveringDropDownButton, getRoofStyleDropDownMSB, getSaveButton } from "../GPA/Residential/ValuationPage";
+import { getCalculateButton, getConstructionTypeDropDownMSB, getEditButtoninMSB, getFinishedLivingArea_MSB, getFoundationTypeMSB, getMoreButton, getMoreforConstructionType, getMoreforPrimaryHeating, getMSBAlertCloseButton, getMSBYearBuilt, getNumberOfStoriesMSB, getPrimaryHeating_MSB_DropDown, getRoofCoveringDropDownButton, getRoofStyleDropDownMSB, getSaveButton } from "../Core/ValuationPage";
 
 const getValuationTypeDropDown = () => getLocator("//td[contains(@id, 'ValuationType_Ext')]/following-sibling::td//div[contains(@class,'x-form-arrow-trigger')]");
 const getMakeDropDown = () => getLocator("//td[contains(@id, 'make-inputCell')]/following-sibling::td//div[contains(@class,'x-form-arrow-trigger')]");
@@ -771,6 +770,8 @@ export async function fillDwellingConstruction_DWSPage(page: Page, testInfo: Tes
   }
   console.log("Fuel_Storage_Tank_Location",dwellingConstructionData["Fuel_Storage_Tank_Location"]);
  
+ 
+ 
   if (dwellingConstructionData["Electrical_System"] && await isElementVisible(getElectricalSystemDropDown())) {
     await wait(3000);
     dataFromExcel.set("Electrical_System", dwellingConstructionData["Electrical_System"]);
@@ -817,8 +818,8 @@ export async function fillDwellingConstruction_DWSPage(page: Page, testInfo: Tes
     // ✅ Keep clicking MSB button until popup opens
     for (let popupAttempt = 1; popupAttempt <= maxPopupAttempts; popupAttempt++) {
       console.log(`🔄 Attempt ${popupAttempt}/${maxPopupAttempts}: Clicking Go To MSB button...`);
-      const popupPromise = page.waitForEvent("popup", { timeout: 10000 });
-       MSBPage = await popupPromise;
+      // const popupPromise = page.waitForEvent("popup", { timeout: 10000 });
+      //  MSBPage = await popupPromise;
 
       try {
         // Set up popup listener before clicking
@@ -827,9 +828,9 @@ export async function fillDwellingConstruction_DWSPage(page: Page, testInfo: Tes
         // Click the MSB button
         await getGoToMSBbutton().click({ force: true });
         console.log(`📝 MSB button clicked on attempt ${popupAttempt}`);
- 
+        const popupPromise = page.waitForEvent("popup", { timeout: 10000 });
         // Wait for popup to open
-        // MSBPage = await popupPromise;
+        MSBPage = await popupPromise;
  
         if (MSBPage && !MSBPage.isClosed()) {
           console.log(`✅ MSB popup opened successfully on attempt ${popupAttempt}`);
@@ -881,6 +882,7 @@ export async function fillDwellingConstruction_DWSPage(page: Page, testInfo: Tes
  
             if (finishButtonVisible) {
               console.log("✅ Finish button is now visible in MSB popup");
+              await captureAndAttachforCore(MSBPage, testInfo, 'MSB popup window before update');
               break;
             }
  
@@ -1004,11 +1006,16 @@ export async function fillDwellingConstruction_DWSPage(page: Page, testInfo: Tes
         await wait(1000);
       }
       await wait(2000);
+      if (await isElementVisible(getMSBAlertCloseButton)) {
+            await MSBPage.click(getMSBAlertCloseButton);
+          }
       console.log("MSB popup capturing Image Now.");
-      await captureAndAttachforCore(MSBPage, testInfo, 'MSB popup window');
+      await captureAndAttachforCore(MSBPage, testInfo, 'MSB popup window after update');
       await wait(SMALL_TIMEOUT);
-      await MSBPage.click(getCalculateButton);
-      await wait(2000);
+      if(await isElementVisible(getCalculateButton)){
+        await MSBPage.click(getCalculateButton);
+        await wait(2000);
+      }
       await MSBPage.click(getFinishButton);
       await wait(2000);
       await MSBPage.click(getSaveButton_MSB);
@@ -1303,31 +1310,86 @@ export async function fillDwellingConstruction_MHPage(page: Page, testInfo: Test
     //   console.log("Clicked on Retrieve from MSB button");
     //   await page.waitForLoadState("load", { timeout: MAX_TIMEOUT });
     // }
-    // Identify the scrollable container
-    // const container = page.locator('#centerPanel');
+    if (await isElementVisible(getGoToMSBbutton())) {
+    console.log("🔍 MSB button is visible, attempting to open popup...");
  
-    // ========== TOP screenshot ==========
-    // await container.evaluate(el => el.scrollTop = 0);
-    // await page.waitForTimeout(3000);
+    let MSBPage = null;
+    let popupOpened = false;
+    const maxPopupAttempts = 8;
  
-    // await captureAndAttachforCore(page, testInfo, "Dwelling Construction Details after clicking on Retrieve from MSB button 1 of 2", {
-    //   fullPage: true
-    // });
-    // await page.waitForTimeout(3000);
-    // // ========== BOTTOM screenshot ==========
-    // await container.evaluate(el => {
-    //   el.scrollTop = el.scrollHeight - el.clientHeight;
-    // });
-    // await captureAndAttachforCore(page, testInfo, "Dwelling Construction Details after clicking on Retrieve from MSB button 2 of 2", {
-    //   fullPage: false
-    // });
-    // await captureAndAttachforCore(page, testInfo, "Dwelling Construction Details After Clicking On Retrieve From MSB Button");
-    const MSBPage = await page.waitForEvent("popup");
+    // ✅ Keep clicking MSB button until popup opens
+    for (let popupAttempt = 1; popupAttempt <= maxPopupAttempts; popupAttempt++) {
+      console.log(`🔄 Attempt ${popupAttempt}/${maxPopupAttempts}: Clicking Go To MSB button...`);
+      // const popupPromise = page.waitForEvent("popup", { timeout: 10000 });
+      //  MSBPage = await popupPromise;
+
+      try {
+        // Set up popup listener before clicking
+        // const popupPromise = page.waitForEvent("popup", { timeout: 10000 });
+ 
+        // Click the MSB button
+        await getGoToMSBbutton().click({ force: true });
+        console.log(`📝 MSB button clicked on attempt ${popupAttempt}`);
+        const popupPromise = page.waitForEvent("popup", { timeout: 10000 });
+        // Wait for popup to open
+        MSBPage = await popupPromise;
+ 
+        if (MSBPage && !MSBPage.isClosed()) {
+          console.log(`✅ MSB popup opened successfully on attempt ${popupAttempt}`);
+          popupOpened = true;
+          await wait(10000);//wait sometime to make page loaded successfully .
+          // await page.pause();
+          // await captureAndAttachforCore(MSBPage, testInfo, 'MSB Popup',{fullPage:true});
+          break;
+        }
+ 
+      } catch (popupError) {
+        console.log(`⚠️ Popup not opened on attempt ${popupAttempt}: ${popupError}`);
+ 
+        if (popupAttempt < maxPopupAttempts) {
+          console.log(`⏳ Waiting 3 seconds before retry...`);
+          await wait(3000);
+ 
+          // Check if button is still visible before next attempt
+          if (!(await isElementVisible(getGoToMSBbutton()))) {
+            console.log(`❌ MSB button no longer visible, stopping attempts`);
+            break;
+          }
+        }
+      }
+    
+    // ✅ Proceed only if popup actually opened
+  }
   
+
+  if (MSBPage && !MSBPage.isClosed()) {
+      console.log("🎯 MSB popup confirmed open, proceeding with popup interactions...")
     try {
-      // const MSBPage = await page.waitForEvent("popup");
-      await MSBPage.waitForLoadState();
+      
       await wait(TIMEOUT_4_SECONDS);
+      let finishButtonVisible = false;
+        for (let finishAttempt = 0; finishAttempt < 5; finishAttempt++) {
+          try {
+            await MSBPage.waitForLoadState("load", { timeout: 5000 });
+            await wait(2000);
+ 
+            // Check if finish button is visible in the popup
+            const finishButton = MSBPage.locator(getFinishButton);
+            finishButtonVisible = await finishButton.isVisible({ timeout: 3000 });
+ 
+            console.log(`🔍 Finish button check attempt ${finishAttempt + 1}: ${finishButtonVisible}`);
+ 
+            if (finishButtonVisible) {
+              console.log("✅ Finish button is now visible in MSB popup");
+              await captureAndAttachforCore(MSBPage, testInfo, 'MSB popup window before update');
+              break;
+            }
+ 
+            await wait(2000);
+          } catch (finishError) {
+            console.log(`⚠️ Finish button check attempt ${finishAttempt + 1} failed: ${finishError}`);
+          }
+        }
       const maxRetries = 3;
   
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -1347,18 +1409,12 @@ export async function fillDwellingConstruction_MHPage(page: Page, testInfo: Test
   
       //filling finished living area
       await MSBPage.fill(getFinishedLivingArea_MSB, dwellingConstructionData["Finished_Living_Area"].toString());
-      await MSBPage.click(getFoundationTypeMSB());
-      const formattedFoundationType = getFoundationType_MSB(dwellingConstructionData["Foundation_Type"]);
-      await MSBPage.getByRole("option", { name: formattedFoundationType, exact: true }).click();
-      // await MSBPage.click(`text="${formattedFoundationType}"`);
-      await MSBPage.locator(`text="${formattedFoundationType}"`).last().click({ force: true });
-      // await MSBPage.click(getFoundationTypeMSB());
   
       //selecting number of stories
       await MSBPage.click(getNumberOfStoriesMSB());
-      const formattedNumOfStories = getNumberofStoriesMSB(dwellingConstructionData["Number_of_Stories"]);
+      const formattedNumOfStories = getNumberofStoriesMSB(dwellingConstructionData["Style"]);
       await MSBPage.getByRole("option", { name: formattedNumOfStories, exact: true }).click({ force: true });
-      await MSBPage.click(`text="${formattedNumOfStories}"`);
+      // await MSBPage.click(`text="${formattedNumOfStories}"`);
   
       //clicking save 
       await MSBPage.getByRole("button", { name: "Save" }).scrollIntoViewIfNeeded();
@@ -1366,99 +1422,40 @@ export async function fillDwellingConstruction_MHPage(page: Page, testInfo: Test
       await MSBPage.click(getSaveButton, { force: true });
       await wait(TIMEOUT_4_SECONDS);
   
-      //Roof Covering
-      await MSBPage.click(getRoofCoveringDropDownButton);
-      await MSBPage.evaluate(() => { document.body.style.zoom = "85%"; });
-      await MSBPage.click(getMoreButton);
-      const getRoofCover = getRoofCoveringMSB(dwellingConstructionData["Roof_Covering"]);
-      console.log(`Mapped Roof Cover: ${dwellingConstructionData["Roof_Covering"]} → ${getRoofCover}`);
-  
-      let found = false;
-      for (let i = 0; i < 20; i++) {
-        const cell = MSBPage.getByText(getRoofCover, { exact: true });
-        if (await isElementVisible(cell)) {
-          await cell.click({ force: true });
-          found = true;
-          break;
-        }
-        await MSBPage.keyboard.press('ArrowDown');
-        await wait(1000);
-      }
-  
-      // Roof Style
-      await MSBPage.click(getRoofStyleDropDownMSB);
-      if (await isElementVisible(getMoreButton)) {
-        await MSBPage.click(getMoreButton);
-      }
-  
-      const getRoofStyle = getRoofStyleMSB(dwellingConstructionData["Roof_Slope/Style"]);
-      console.log(`Mapped Roof Style: ${dwellingConstructionData["Roof_Slope/Style"]} → ${getRoofStyle}`);
-  
-      let found1 = false;
-      for (let i = 0; i < 20; i++) {
-        const cell = MSBPage.getByText(getRoofStyle, { exact: true });
-        if (await isElementVisible(cell)) {
-          await cell.click({ force: true });
-          found1 = true;
-          break;
-        }
-        await MSBPage.keyboard.press('ArrowDown');
-        await wait(1000);
-      }
-  
-      //ConstructionType
-      await MSBPage.click(getConstructionTypeDropDownMSB);
-      await MSBPage.click(getMoreforConstructionType);
-      const getMSBConstructionType = getConstructionType_MSB(dwellingConstructionData["Construction_Type"]);
-      console.log(`Mapped Construction Type: ${dwellingConstructionData["Construction_Type"]} → ${getMSBConstructionType}`);
-  
-      let found2 = false;
-      for (let i = 0; i < 20; i++) {
-        const cell = MSBPage.getByText(getMSBConstructionType, { exact: true });
-        if (await isElementVisible(cell)) {
-          await cell.click({ force: true });
-          found2 = true;
-          break;
-        }
-        await MSBPage.keyboard.press('ArrowDown');
-        await wait(1000);
-      }
-  
-      //Primary Heating
-      await MSBPage.click(getPrimaryHeating_MSB_DropDown);
-      await MSBPage.click(getMoreforPrimaryHeating);
-      const getPrimaryHeating = getPrimaryHeating_MSB(dwellingConstructionData["Primary_Heating"]);
-      console.log(`Mapped Primary Heating: ${dwellingConstructionData["Primary_Heating"]} → ${getPrimaryHeating}`);
-  
-      let found3 = false;
-      for (let i = 0; i < 20; i++) {
-        const cell = MSBPage.getByText(getPrimaryHeating, { exact: true });
-        if (await isElementVisible(cell)) {
-          await cell.click({ force: true });
-          found3 = true;
-          break;
-        }
-        await MSBPage.keyboard.press('ArrowDown');
-        await wait(1000);
-      }
       await wait(2000);
       console.log("MSB popup capturing Image Now.");
-      await captureFullPage2D(MSBPage, testInfo, 'MSB popup window');
+      await captureAndAttachforCore(MSBPage, testInfo, 'MSB popup window after update');
       await wait(SMALL_TIMEOUT);
+      if(await isElementVisible(getMSBAlertCloseButton)) {
+            await MSBPage.click(getMSBAlertCloseButton);
+          }
+          if(await isElementVisible(getCalculateButton)){
       await MSBPage.click(getCalculateButton);
+          }
       await wait(2000);
       await MSBPage.click(getFinishButton);
       await wait(2000);
       await MSBPage.click(getSaveButton_MSB);
-    } catch (error) {
-      console.error("Error occurred during MSB page interaction:", error);
-    } 
-    finally {
-      if (!MSBPage.isClosed()) {
-        await MSBPage.close();
-        console.log("MSB popup closed in finally block.");
+    // }
+  }
+  catch (error) {
+        console.error("❌ Error occurred during MSB page interaction:", error);
+      } finally {
+        // ✅ Always close popup if it's still open
+        try {
+          if (MSBPage && !MSBPage.isClosed()) {
+            await MSBPage.close();
+            console.log("🔒 MSB popup closed in finally block");
+          }
+        } catch (closeError) {
+          console.log("⚠️ Error closing MSB popup:", closeError);
+        }
       }
-    }   
+ 
+    } else {
+      console.log("❌ Failed to open MSB popup after all attempts, continuing without MSB interaction");
+    }
+}
 
     if (await isElementVisible(getRetriveFromMSB_Button())) {
       await getRetriveFromMSB_Button().click({ force: true });

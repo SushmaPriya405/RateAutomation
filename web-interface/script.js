@@ -237,6 +237,27 @@ class TestRunner {    constructor() {
         
         const normalizedName = filename.toLowerCase().replace(/[_\-\s]+/g, '');
         console.log(`🔍 Analyzing file: "${filename}" → normalized: "${normalizedName}"`);
+
+        if (normalizedName.includes('issuance')) return null;
+
+        const convertedTableLobs = {
+            db: 'Core_Dwelling_Basic',
+            dwb: 'Core_Dwelling_Basic',
+            ds: 'Core_Dwelling_Special',
+            dws: 'Core_Dwelling_Special',
+            dwsp: 'Core_Dwelling_Special',
+            ho: 'Core_HomeOwners',
+            mh: 'Core_Manufactured_Home',
+            cv: 'Core_CV',
+            ms: 'Core_MS',
+            bt: 'Core_BT',
+            yt: 'Core_YT'
+        };
+        const convertedTableMatch = normalizedName.match(/^[a-z]{2}(dwb|db|dwsp|dws|ds|ho[a-z0-9]*|mh|cv|ms|bt|yt)convertedtable\d*\.(?:xlsm|xlsx|xls)$/i);
+        if (convertedTableMatch) {
+            const code = convertedTableMatch[1].toLowerCase();
+            return code.startsWith('ho') ? convertedTableLobs.ho : convertedTableLobs[code];
+        }
         
         // 🎯 UNIFIED PATTERN MATCHING RULES - Ordered by priority (Core first)
         const patternRules = [
@@ -248,24 +269,14 @@ class TestRunner {    constructor() {
             { pattern: /collectorvehicle.*test.*case.*generator.*policy.*change|collectorvehicle.*test.*case.*generator.*renewal/i, lob: 'Core_CV', type: 'core' },
             { pattern: /motorsports.*test.*case.*generator.*policy.*change|motorsports.*test.*case.*generator.*renewal/i, lob: 'Core_MS', type: 'core' },
             { pattern: /boat.*test.*case.*generator.*policy.*change|boat.*test.*case.*generator.*renewal/i, lob: 'Core_BT', type: 'core' },
-            { pattern: /yacht.*test.*case.*generator.*policy.*change|yacht.*test.*case.*generator.*renewal/i, lob: 'Core_YT', type: 'core' },
-            
-            // === GPA (ISSUANCE) PATTERNS - LOWER PRIORITY ===
-            { pattern: /dwellingbasic.*test.*case.*generator.*issuance/i, lob: 'GPA_Dwelling_Basic', type: 'gpa' },
-            { pattern: /dwellingspecial.*test.*case.*generator.*issuance/i, lob: 'GPA_Dwelling_Special', type: 'gpa' },
-            { pattern: /homeowners.*test.*case.*generator.*issuance/i, lob: 'GPA_HomeOwners', type: 'gpa' },
-            { pattern: /manufactured.*home.*test.*case.*generator.*issuance/i, lob: 'GPA_Manufactured_Home', type: 'gpa' },
-            { pattern: /collectorvehicle.*test.*case.*generator.*issuance/i, lob: 'GPA_CV', type: 'gpa' },
-            { pattern: /motorsports.*test.*case.*generator.*issuance/i, lob: 'GPA_MS', type: 'gpa' },
-            { pattern: /boat.*test.*case.*generator.*issuance/i, lob: 'GPA_Boat', type: 'gpa' },
-            { pattern: /yacht.*test.*case.*generator.*issuance/i, lob: 'GPA_Yacht', type: 'gpa' }
+            { pattern: /yacht.*test.*case.*generator.*policy.*change|yacht.*test.*case.*generator.*renewal/i, lob: 'Core_YT', type: 'core' }
         ];
         
         // Try exact pattern matching first (priority order)
         for (let i = 0; i < patternRules.length; i++) {
             const rule = patternRules[i];
             if (rule.pattern.test(normalizedName)) {
-                console.log(`✅ EXACT MATCH (Rule ${i + 1}): ${filename} → ${rule.lob} (${rule.type.toUpperCase()})`);
+                console.log(`✅ EXACT MATCH (Rule ${i + 1}): ${filename} → ${rule.lob}`);
                 return rule.lob;
             }
         }
@@ -281,14 +292,6 @@ class TestRunner {    constructor() {
             'Core_MS': ['motorsports', 'test', 'case', 'generator', 'policy', 'change', 'motorsports', 'test', 'case', 'generator', 'renewal'],
             'Core_BT': ['boat', 'test', 'case', 'generator', 'policy', 'change', 'boat', 'test', 'case', 'generator', 'renewal'],
             'Core_YT': ['yacht', 'test', 'case', 'generator', 'policy', 'change', 'yacht', 'test', 'case', 'generator', 'renewal'],
-            'GPA_Dwelling_Basic': ['dwellingbasic', 'test', 'case', 'generator', 'issuance'],
-            'GPA_Dwelling_Special': ['dwellingspecial', 'test', 'case', 'generator', 'issuance'],
-            'GPA_HomeOwners': ['homeowners', 'test', 'case', 'generator', 'issuance'],
-            'GPA_Manufactured_Home': ['manufactured', 'home', 'test', 'case', 'generator', 'issuance'],
-            'GPA_CV': ['collectorvehicle', 'test', 'case', 'generator', 'issuance'],
-            'GPA_MS': ['motorsports', 'test', 'case', 'generator', 'issuance'],
-            'GPA_Boat': ['boat', 'test', 'case', 'generator', 'issuance'],
-            'GPA_Yacht': ['yacht', 'test', 'case', 'generator', 'issuance'],
         };
         
         const scores = {};
@@ -306,29 +309,18 @@ class TestRunner {    constructor() {
             if (score > 0) {
                 scores[lob] = {
                     score,
-                    matchedKeywords,
-                    type: lob.startsWith('Core_') ? 'core' : 'gpa'
+                    matchedKeywords
                 };
             }
         }
         
         if (Object.keys(scores).length > 0) {
-            // Find the highest scoring LOB, preferring Core over GPA when scores are equal
-            const bestMatch = Object.entries(scores).reduce((best, current) => {
-                const [lobName, data] = current;
-                const [bestLobName, bestData] = best;
-
-                const typePriority = { core: 2, gpa: 1 };
-                
-                if (data.score > bestData.score || 
-                    (data.score === bestData.score && (typePriority[data.type] || 0) > (typePriority[bestData.type] || 0))) {
-                    return current;
-                }
-                return best;
-            });
+            const bestMatch = Object.entries(scores).reduce((best, current) =>
+                current[1].score > best[1].score ? current : best
+            );
             
             const [bestLOB, bestData] = bestMatch;
-            console.log(`🎯 KEYWORD MATCH: ${filename} → ${bestLOB} (${bestData.type.toUpperCase()})`);
+            console.log(`🎯 KEYWORD MATCH: ${filename} → ${bestLOB}`);
             console.log(`   Score: ${bestData.score}, Keywords: ${bestData.matchedKeywords.join(', ')}`);
             return bestLOB;
         }
@@ -381,22 +373,14 @@ class TestRunner {    constructor() {
     }    // Get expected file pattern for each LOB
     getExpectedFilePattern(lob) {
         const patterns = {
-            'GPA_Dwelling_Basic': 'DwellingBasic_Test_Case_Generator_Issuance_*.xlsm',
-            'GPA_Dwelling_Special': 'DwellingSpecial_Test_Case_Generator_Issuance_*.xlsm', 
-            'GPA_HomeOwners': 'Homeowners_Test_Case_Generator_Issuance_*.xlsm',
-            'GPA_Manufactured_Home': 'Manufactured_Home_Test_Case_Generator_Issuance_*.xlsm',
-            'GPA_Boat': 'Boat_Test_Case_Generator_Issuance_*.xlsm',
-            'GPA_Yacht': 'Yacht_Test_Case_Generator_Issuance_*.xlsm',
-            'GPA_CV': 'CollectorVehicle_Test_Case_Generator_Issuance_*.xlsm',
-            'GPA_MS': 'Motorsports_Test_Case_Generator_Issuance_*.xlsm',
-            'Core_Dwelling_Basic': 'DwellingBasic_Test_Case_Generator_Policy_Change_*.xlsm OR DwellingBasic_Test_Case_Generator_Renewal_*.xlsm',
-            'Core_Dwelling_Special': 'DwellingSpecial_Test_Case_Generator_Policy_Change_*.xlsm OR DwellingSpecial_Test_Case_Generator_Renewal_*.xlsm',
-            'Core_Manufactured_Home': 'Manufactured_Home_Test_Case_Generator_Policy_Change_*.xlsm OR Manufactured_Home_Test_Case_Generator_Renewal_*.xlsm',
-            'Core_HomeOwners': 'Homeowners_Test_Case_Generator_Policy_Change_*.xlsm OR Homeowners_Test_Case_Generator_Renewal_*.xlsm',
-            'Core_CV': 'CollectorVehicle_Test_Case_Generator_Policy_Change_*.xlsm OR CollectorVehicle_Test_Case_Generator_Renewal_*.xlsm',
-            'Core_MS': 'Motorsports_Test_Case_Generator_Policy_Change_*.xlsm OR Motorsports_Test_Case_Generator_Renewal_*.xlsm',
-            'Core_BT': 'Boat_Test_Case_Generator_Policy_Change_*.xlsm OR Boat_Test_Case_Generator_Renewal_*.xlsm',
-            'Core_YT': 'Yacht_Test_Case_Generator_Policy_Change_*.xlsm OR Yacht_Test_Case_Generator_Renewal_*.xlsm'
+            'Core_Dwelling_Basic': '{State}_DB_ConvertedTable.xls or {State}_DWB_ConvertedTable.xls',
+            'Core_Dwelling_Special': '{State}_DS_ConvertedTable.xls, {State}_DWS_ConvertedTable.xls, or {State}_DWSP_ConvertedTable.xls',
+            'Core_Manufactured_Home': '{State}_MH_ConvertedTable.xls',
+            'Core_HomeOwners': '{State}_HO*_ConvertedTable.xls',
+            'Core_CV': '{State}_CV_ConvertedTable.xls',
+            'Core_MS': '{State}_MS_ConvertedTable.xls',
+            'Core_BT': '{State}_BT_ConvertedTable.xls',
+            'Core_YT': '{State}_YT_ConvertedTable.xls'
         };
         
         return patterns[lob] || `${lob}_*.xlsm`;
@@ -1080,16 +1064,9 @@ class TestRunner {    constructor() {
         `;
     }    async executePlaywrightTests(lob, environment = 'test') {
         const testMappings = {
-            'GPA_Dwelling_Basic': 'GPA_Dwelling_Basic.spec.ts',
-            'GPA_Dwelling_Special': 'GPA_Dwelling_Special.spec.ts',
-            'GPA_HomeOwners': 'GPA_HomeOwners.spec.ts',            'Core_Dwelling_Basic': 'Core_Dwelling_Basic.spec.ts',
+            'Core_Dwelling_Basic': 'Core_Dwelling_Basic.spec.ts',
             'Core_Dwelling_Special': 'Core_Dwelling_Special.spec.ts',
             'Core_Manufactured_Home': 'Core_Manufactured_Home.spec.ts',
-            'GPA_CV': 'GPA_CV.spec.ts',
-            'GPA_Manufactured_Home': 'GPA_Manufactured_Home.spec.ts',
-            'GPA_MS': 'GPA_MS.spec.ts',
-            'GPA_Boat': 'GPA_Boat.spec.ts',
-            'GPA_Yacht': 'GPA_Yacht.spec.ts',
             'Core_BT': 'Core_BT.spec.ts',
             'Core_YT': 'Core_YT.spec.ts',
         };
@@ -1333,20 +1310,12 @@ console.log('🔥 SOCKET EVENT:', eventName, data);
         }
     }    getLOBDisplayName(lob) {
         const displayNames = {
-            'GPA_Dwelling_Basic': 'GPA Dwelling Basic',
-            'GPA_Dwelling_Special': 'GPA Dwelling Special',
-            'GPA_HomeOwners': 'GPA Homeowners',
             'Core_Dwelling_Basic': 'Core Dwelling Basic',
             'Core_Dwelling_Special': 'Core Dwelling Special',
             'Core_HomeOwners': 'Core Homeowners',
             'Core_CV': 'Core Collector Vehicle',
             'Core_MS': 'Core Motorsports',
             'Core_Manufactured_Home': 'Core Manufactured Home',
-            'GPA_CV': 'GPA Collector Vehicle',
-            'GPA_Manufactured_Home': 'GPA Manufactured Home',
-            'GPA_MS': 'GPA Motorsports',
-            'GPA_Boat': 'GPA Boat',
-            'GPA_Yacht': 'GPA Yacht',
             'Core_BT': 'Core Boat (BT)',
             'Core_YT': 'Core Yacht (YT)'
         };
@@ -1381,14 +1350,6 @@ console.log('🔥 SOCKET EVENT:', eventName, data);
             console.error(`❌ Error fetching maxrecord for ${lob}:`, error);
         }        // Fallback: Default estimated counts for different LOB types
         const testCounts = {
-            'GPA_Dwelling_Basic': 5,
-            'GPA_Dwelling_Special': 5,
-            'GPA_HomeOwners': 4,
-            'GPA_Manufactured_Home': 4,
-            'GPA_Boat': 3,
-            'GPA_CV': 3,
-            'GPA_Yacht': 3,
-            'GPA_MS': 3,
             'Core_Dwelling_Basic': 5,
             'Core_Dwelling_Special': 5,
             'Core_HomeOwners': 4,
@@ -1472,17 +1433,7 @@ console.log('🔥 SOCKET EVENT:', eventName, data);
     filterLOBsByEnvironment() {
         const selectedEnv = this.envSelect.value;
         
-        // Define LOB categories
-        const gpaSuiteLOBs = [
-            'GPA_Dwelling_Basic',
-            'GPA_Dwelling_Special',
-            'GPA_Manufactured_Home',
-            'GPA_HomeOwners',
-            'GPA_Boat',
-            'GPA_CV',
-            'GPA_Yacht',
-            'GPA_MS'
-        ];        const coreSuiteLOBs = [
+        const coreSuiteLOBs = [
             'Core_Dwelling_Basic',
             'Core_Dwelling_Special',
             'Core_HomeOwners',
@@ -1498,10 +1449,9 @@ console.log('🔥 SOCKET EVENT:', eventName, data);
         
         // Clear current options except the first one
         this.lobSelect.innerHTML = '<option value="">-- Select Test --</option>';
-          // Add options based on environment
+        // Add Core options for supported environments
         if (selectedEnv === 'test' || selectedEnv === 'test2' || selectedEnv === 'datemove' || selectedEnv === 'lab2' || selectedEnv === 'preprod') {
-            // Show all LOBs (GPA Suite + Core Suite) for all environments
-            [...gpaSuiteLOBs, ...coreSuiteLOBs].forEach(lob => {
+            coreSuiteLOBs.forEach(lob => {
                 this.addLOBOption(lob);
             });
         }
@@ -1518,14 +1468,6 @@ console.log('🔥 SOCKET EVENT:', eventName, data);
         const option = document.createElement('option');
         option.value = lobValue;        // Convert technical names to display names
         const displayNames = {
-            'GPA_Dwelling_Basic': 'GPA Dwelling Basic',
-            'GPA_Dwelling_Special': 'GPA Dwelling Special',
-            'GPA_Manufactured_Home': 'GPA Manufactured Home',
-            'GPA_HomeOwners': 'GPA HomeOwners',
-            'GPA_Boat': 'GPA Boat',
-            'GPA_CV': 'GPA Collector Vehicle',
-            'GPA_Yacht': 'GPA Yacht',
-            'GPA_MS': 'GPA Motorsports',
             'Core_Dwelling_Basic': 'Core Dwelling Basic',
             'Core_Dwelling_Special': 'Core Dwelling Special',
             'Core_HomeOwners': 'Core HomeOwners',

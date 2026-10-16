@@ -10,7 +10,7 @@ import {
 import { readExcelfile, getQuotePageByTestCase, writeTestResultsToExcel, getDriversByTestCase, getRuleMatrixByTestCase, extractPageFromTestInfo, buildFailureStatus, categorizeErrorType, extractFieldNameFromError, getSubmissionRowsDataRecCore } from "../utils/excel-utils";
 import path from "path";
 import * as AccountPage from "../pages/Core/AccountCreation_CorePage";
-import * as LoginPage from "../pages/GPA/Residential/LoginPage";
+import * as LoginPage from "../pages/Core/LoginPage";
 import * as RiskAnalysisPage from "../pages/Core/RiskAnalysis_CorePage";
 import * as MS_qualification_CorePage from "../pages/Core/Recreational/MS_qualification_CorePage";
 import * as MS_policyInfo_CorePage from "../pages/Core/Recreational/MS_policyInfo_CorePage";
@@ -29,7 +29,7 @@ import { ValidationResult } from "../utils/ruleBasedValidation";
 import { wait } from "../utils/action-utils";
 
 import * as QualificationPage from "../pages/Core/qualifications_CorePage";
-import { initQuestionMapper } from "../utils/questionTextMapper";
+import { initQuestionMapper, initQuestionMapperFromJson } from "../utils/questionTextMapper";
 import fs from 'fs';
 import { executionAbortFile,  isExecutionAborted,  markExecutionAborted } from "../utils/abort-helper";
 
@@ -68,7 +68,7 @@ export function initializeExcelData() {
   excelPath = resolveExcelPath(excelConfig);
   excelResultPath = resolveResultPath(excelConfig);
 
-  initQuestionMapper(excelPath, "Sheets_Help");
+  initQuestionMapperFromJson();
   // Validate Excel file exists
   validateExcelFile(excelPath);
 

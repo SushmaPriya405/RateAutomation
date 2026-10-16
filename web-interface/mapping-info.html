@@ -246,8 +246,12 @@
                 }
                 
                 const data = await response.json();
-                displaySummary(data);
-                displayMappings(data.testMappings);
+                const coreMappings = data.testMappings.filter(mapping => mapping.key.startsWith('Core_'));
+                displaySummary({
+                    totalTests: coreMappings.length,
+                    availableTests: coreMappings.filter(mapping => mapping.exists).length
+                });
+                displayMappings(coreMappings);
                 
                 document.getElementById('loadingSection').style.display = 'none';
                 

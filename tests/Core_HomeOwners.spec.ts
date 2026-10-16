@@ -13,7 +13,7 @@ import {
 } from "../utils/excel-utils";
 import path from "path";
 import * as AccountPage from "../pages/Core/AccountCreation_CorePage";
-import * as LoginPage from "../pages/GPA/Residential/LoginPage";
+import * as LoginPage from "../pages/Core/LoginPage";
 import * as QualificationPage from "../pages/Core/qualifications_CorePage";
 import * as PolicyInfoPage from "../pages/Core/policyInfo_CorePage";
 import * as DwellingPage from "../pages/Core/dwelling_CorePage";
@@ -31,7 +31,7 @@ import { errorWordingValidation, getActualUIValidationErrors, getValidationError
 import { wait } from "../utils/action-utils";
 import { resolveExcelPath, resolveResultPath, validateExcelFile, createAutoConfig } from "../utils/excel-path-resolver";
 import { readTestCaseNamesFromExcel } from "../utils/genTC-filter-utils";
-import { initQuestionMapper } from "../utils/questionTextMapper";
+import { initQuestionMapper, initQuestionMapperFromJson } from "../utils/questionTextMapper";
 import { ValidationResult } from "../utils/coreRuleBasedValidation";
 import { getLocator } from "../utils/locator-utils";
 import { executionAbortFile, isExecutionAborted, markExecutionAborted } from "../utils/abort-helper";
@@ -76,7 +76,7 @@ function initializeExcelData() {
   // const allSummaryRecords = readExcelfile(excelPath, "Summary");
 
   validateExcelFile(excelPath)
-  initQuestionMapper(excelPath, "Sheets_Help")
+  initQuestionMapperFromJson();
   const allSummaryRecords = readExcelfile(excelPath, "Summary")
 
   // ✅ Filter with original indices: Sirf GEN_TC = "Y" wale test cases

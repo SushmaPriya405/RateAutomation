@@ -41,6 +41,29 @@ const FILE_PATTERN_MAPPING: Record<string, string[]> = {
   "GPA_Yacht.spec.ts": ["yacht", "test", "case", "generator", "issuance"]
 };
 
+const CORE_CONVERTED_TABLE_CODES: Record<string, string> = {
+  DB: "Core_Dwelling_Basic.spec.ts",
+  DWB: "Core_Dwelling_Basic.spec.ts",
+  DS: "Core_Dwelling_Special.spec.ts",
+  DWS: "Core_Dwelling_Special.spec.ts",
+  DWSP: "Core_Dwelling_Special.spec.ts",
+  HO: "Core_HomeOwners.spec.ts",
+  MH: "Core_Manufactured_Home.spec.ts",
+  CV: "Core_CV.spec.ts",
+  MS: "Core_MS.spec.ts",
+  BT: "Core_BT.spec.ts",
+  YT: "Core_YT.spec.ts"
+};
+
+function findCoreConvertedTableSpec(fileName: string): string | null {
+  const match = fileName.match(/^[a-z]{2}_([a-z]{2,4})_convertedtable(?:\s*\d+)?(?:_\d{14})?\.(?:xlsm|xlsx|xls)$/i);
+  if (!match) return null;
+
+  const code = match[1].toUpperCase();
+  if (code.startsWith("HO")) return CORE_CONVERTED_TABLE_CODES.HO;
+  return CORE_CONVERTED_TABLE_CODES[code] || null;
+}
+
 /**
  * Get search patterns for current test file automatically
  */
@@ -69,6 +92,9 @@ function getTestFilePatterns(testFileName?: string): string[] {
  */
 export function findBestMatchingTestSuite(fileName: string): string | null {
   if (!fileName) return null;
+
+  const convertedTableSpec = findCoreConvertedTableSpec(fileName);
+  if (convertedTableSpec) return convertedTableSpec;
   
   const normalizedName = fileName.toLowerCase().replace(/[_\-\s]+/g, '');
   console.log(`🔍 Analyzing file: "${fileName}" → normalized: "${normalizedName}"`);
@@ -313,9 +339,8 @@ export function resolveExcelPath(config: ExcelPathConfig): string {
               const lowerFile = file.toLowerCase();
               
               // Check if this file matches the patterns for the best match
-              const matches = requiredPatterns.every(pattern => 
-                lowerFile.includes(pattern.toLowerCase())
-              );
+              const matches = findCoreConvertedTableSpec(file) === bestMatch ||
+                requiredPatterns.every(pattern => lowerFile.includes(pattern.toLowerCase()));
               
               if (matches) {
                 const filePath = path.join(sessionTestDataDir, file);
@@ -388,9 +413,8 @@ export function resolveExcelPath(config: ExcelPathConfig): string {
           const lowerFile = file.toLowerCase();
           
           // Check if this file matches the patterns for the best match
-          const matches = requiredPatterns.every(pattern => 
-            lowerFile.includes(pattern.toLowerCase())
-          );
+          const matches = findCoreConvertedTableSpec(file) === bestMatch ||
+            requiredPatterns.every(pattern => lowerFile.includes(pattern.toLowerCase()));
           
           if (matches) {
             const selectedPath = path.join(defaultTestDataDir, file);

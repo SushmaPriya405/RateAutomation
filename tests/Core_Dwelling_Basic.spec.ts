@@ -1,8 +1,7 @@
 import { test } from "../setup/page-setup";
 import { getSubmissionRowsDataCore, readExcelfile, writeTestResultsToExcel, getRowForTestCase, extractPageFromTestInfo, extractFieldNameFromError, categorizeErrorType, buildFailureStatus, getQuotePageByTestCase, getRuleMatrixByTestCase } from "../utils/excel-utils";
-import path from "path";
 import * as AccountPage from "../pages/Core/AccountCreation_CorePage";
-import * as LoginPage from "../pages/GPA/Residential/LoginPage";
+import * as LoginPage from "../pages/Core/LoginPage";
 import * as QualificationPage from "../pages/Core/qualifications_CorePage";
 import * as PolicyInfoPage from "../pages/Core/policyInfo_CorePage";
 import * as DwellingPage from "../pages/Core/dwelling_CorePage";
@@ -11,13 +10,12 @@ import * as CoveragePage from "../pages/Core/DB_Coverages_CorePage";
 import * as RiskAnalysisPage from "../pages/Core/RiskAnalysis_CorePage";
 import * as paymentDetailsPage from "../pages/Core/payments_CorePage";
 import { MAX_TIMEOUT, PAUSE_TIMEOUT } from "../utils/timeout-constants";
-import { results } from "../testdata/testData";
-import { captureAndAttach, captureAndAttachforCore, captureFullPage2D } from "../utils/report-utils";
+import { captureFullPage2D } from "../utils/report-utils";
 import { isElementVisible } from "../utils/element-utils";
 import { getValidationErrorUICore } from "../utils/wordingValidation";
 import { resolveExcelPath, resolveResultPath, validateExcelFile, createAutoConfig } from "../utils/excel-path-resolver";
 import { ValidationResult } from "../utils/coreRuleBasedValidation";
-import { initQuestionMapper } from "../utils/questionTextMapper";
+import { initQuestionMapperFromJson } from "../utils/questionTextMapper";
 import * as CV_RiskAnaysis_CorePage from "../pages/Core/Recreational/CV_RiskAnaysis_CorePage";
 import { getLocator } from "../utils/locator-utils";
 import { executionAbortFile, isExecutionAborted, markExecutionAborted } from "../utils/abort-helper";
@@ -55,25 +53,24 @@ function initializeExcelData() {
 
   excelPath = resolveExcelPath(excelConfig);
   excelResultPath = resolveResultPath(excelConfig);
-  // Validate Excel file exists
   validateExcelFile(excelPath);
-  initQuestionMapper(excelPath, "Sheets_Help");
+  initQuestionMapperFromJson();
 
-  const allSummaryRecords = readExcelfile(excelPath, "Summary");
+  const allSummaryRecords = readExcelfile(excelPath, "CommonTestData");
 
-  // ✅ Filter with original indices: Sirf GEN_TC = "Y" wale test cases
+  // ✅ Filter with original indices: Sirf RUNTESTCASE = "Y" wale test cases
   SummaryRecord = allSummaryRecords
     .map((record: any, originalIndex: number) => ({
       ...record,
       _originalRowIndex: originalIndex  // ✅ Track original row number
     }))
     .filter((record: any) => {
-      const genTC = String(record["GEN_TC"] ?? "").trim().toLowerCase();
-      return genTC === "y" || genTC === "yes";
+      const runTestCase = String(record["RUNTESTCASE"] ?? "").trim().toLowerCase();
+      return runTestCase === "y" || runTestCase === "yes";
     });
 
   console.log(`📊 Total records in Excel: ${allSummaryRecords.length}`);
-  console.log(`✅ Filtered records (GEN_TC = Y): ${SummaryRecord.length}`);
+  console.log(`✅ Filtered records (RUNTESTCASE = Y): ${SummaryRecord.length}`);
 
   // Log which rows will be executed
   const rowNumbers = SummaryRecord.map((r: any) => r._originalRowIndex + 1).join(", ");
@@ -156,7 +153,7 @@ test.beforeAll(() => {
   console.log("beforeEach flag exists=", fs.existsSync(executionAbortFile));
 
   initializeExcelData();
-  console.log(`🔄 Running ${SummaryRecord.length} test cases (GEN_TC = Y)`);
+  console.log(`🔄 Running ${SummaryRecord.length} test cases (RUNTESTCASE = Y)`);
 });
 
 const getAllUWMessagesFromUI = (messages: string[]): string[] => {

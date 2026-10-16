@@ -2,7 +2,7 @@ import { test } from "../setup/page-setup";
 import { getSubmissionRowsDataRecCore, getDriversByTestCase, readExcelfile, writeTestResultsToExcel, getQuotePageByTestCase, getRuleMatrixByTestCase, buildFailureStatus, categorizeErrorType, extractFieldNameFromError, extractPageFromTestInfo } from "../utils/excel-utils";
 import path from "path";
 import * as AccountPage from "../pages/Core/AccountCreation_CorePage";
-import * as LoginPage from "../pages/GPA/Residential/LoginPage";
+import * as LoginPage from "../pages/Core/LoginPage";
 import * as RiskAnalysisPage from "../pages/Core/RiskAnalysis_CorePage";
 import * as BT_Qualification_CorePage from "../pages/Core/Recreational/BT_Qualification_CorePage";
 import * as BT_PolicyInfo_CorePage from "../pages/Core/Recreational/BT_PolicyInfo_CorePage";
@@ -19,7 +19,7 @@ import { wait } from "../utils/action-utils";
 import { resolveExcelPath, resolveResultPath, validateExcelFile, createAutoConfig } from "../utils/excel-path-resolver";
 import { ValidationResult } from "../utils/coreRuleBasedValidation";
 import { getLocator } from "../utils/locator-utils";
-import { initQuestionMapper } from "../utils/questionTextMapper";
+import { initQuestionMapper, initQuestionMapperFromJson } from "../utils/questionTextMapper";
 import { executionAbortFile, isExecutionAborted, markExecutionAborted } from "../utils/abort-helper";
 import fs from "fs";
 import { emitExecutionEvent } from "../utils/execution-event";
@@ -162,7 +162,7 @@ function initializeExcelData() {
   // Validate Excel file exists
   validateExcelFile(excelPath);
 
-  initQuestionMapper(excelPath, "Sheets_Help");
+  initQuestionMapperFromJson();
 
   // Load all Excel data
   const allSummaryRecords = readExcelfile(excelPath, "Summary");

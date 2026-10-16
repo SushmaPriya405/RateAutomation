@@ -8,7 +8,7 @@ const socketIo = require('socket.io');
 const crypto = require('crypto');
 const archiver = require('archiver');
 const xlsx = require('xlsx'); // 🎯 NEW: Add Excel reading capability
-// 🎯 DYNAMIC FILTERING: Import the new Excel filtering utility
+
 const { 
     processExcelForDynamicFiltering, 
     getFilteredTestPreview, 
@@ -340,6 +340,25 @@ app.post('/api/upload/:sessionId', (req, res) => {
                 const normalizedFileName = fileName.toLowerCase().replace(/[_\-\s]+/g, '');
                 let detectedLOB = 'Unknown';
 
+                const convertedTableLobs = {
+                    db: 'Core_Dwelling_Basic',
+                    dwb: 'Core_Dwelling_Basic',
+                    ds: 'Core_Dwelling_Special',
+                    dws: 'Core_Dwelling_Special',
+                    dwsp: 'Core_Dwelling_Special',
+                    ho: 'Core_HomeOwners',
+                    mh: 'Core_Manufactured_Home',
+                    cv: 'Core_CV',
+                    ms: 'Core_MS',
+                    bt: 'Core_BT',
+                    yt: 'Core_YT'
+                };
+                const convertedTableMatch = normalizedFileName.match(/^[a-z]{2}(dwb|db|dwsp|dws|ds|ho[a-z0-9]*|mh|cv|ms|bt|yt)convertedtable\d*\.(?:xlsm|xlsx|xls)$/i);
+                if (convertedTableMatch) {
+                    const code = convertedTableMatch[1].toLowerCase();
+                    detectedLOB = code.startsWith('ho') ? convertedTableLobs.ho : convertedTableLobs[code];
+                }
+
                 const lobRules = [
                     // Core (Policy Change / Renewal)
                     { pattern: /dwellingbasic.*test.*case.*generator.*policy.*change|dwelling.*basic.*test.*case.*generator.*renewal/i, lob: 'Core_Dwelling_Basic' },
@@ -351,21 +370,14 @@ app.post('/api/upload/:sessionId', (req, res) => {
                     { pattern: /boat.*test.*case.*generator.*policy.*change|boat.*test.*case.*generator.*renewal/i, lob: 'Core_BT' },
                     { pattern: /yacht.*test.*case.*generator.*policy.*change|yacht.*test.*case.*generator.*renewal/i, lob: 'Core_YT' },
 
-                    // GPA (Issuance)
-                    { pattern: /dwellingbasic.*test.*case.*generator.*issuance/i, lob: 'GPA_Dwelling_Basic' },
-                    { pattern: /dwellingspecial.*test.*case.*generator.*issuance/i, lob: 'GPA_Dwelling_Special' },
-                    { pattern: /homeowners.*test.*case.*generator.*issuance/i, lob: 'GPA_HomeOwners' },
-                    { pattern: /manufactured.*home.*test.*case.*generator.*issuance/i, lob: 'GPA_Manufactured_Home' },
-                    { pattern: /collectorvehicle.*test.*case.*generator.*issuance/i, lob: 'GPA_CV' },
-                    { pattern: /motorsports.*test.*case.*generator.*issuance/i, lob: 'GPA_MS' },
-                    { pattern: /boat.*test.*case.*generator.*issuance/i, lob: 'GPA_Boat' },
-                    { pattern: /yacht.*test.*case.*generator.*issuance/i, lob: 'GPA_Yacht' }
                 ];
 
-                for (const rule of lobRules) {
-                    if (rule.pattern.test(normalizedFileName)) {
-                        detectedLOB = rule.lob;
-                        break;
+                if (detectedLOB === 'Unknown') {
+                    for (const rule of lobRules) {
+                        if (rule.pattern.test(normalizedFileName)) {
+                            detectedLOB = rule.lob;
+                            break;
+                        }
                     }
                 }
                 
@@ -560,20 +572,12 @@ app.post('/api/run-tests/:sessionId', async (req, res) => {
         
         // Map LOB to test file (using exact test names)
         const testMappings = {
-            'GPA_Dwelling_Basic': './tests/GPA_Dwelling_Basic.spec.ts',
-            'GPA_Dwelling_Special': './tests/GPA_Dwelling_Special.spec.ts',
-            'GPA_HomeOwners': './tests/GPA_HomeOwners.spec.ts',
             'Core_Dwelling_Basic': './tests/Core_Dwelling_Basic.spec.ts',
             'Core_Dwelling_Special': './tests/Core_Dwelling_Special.spec.ts',
             'Core_HomeOwners': './tests/Core_HomeOwners.spec.ts',
             'Core_CV': './tests/Core_CV.spec.ts',
             'Core_MS': './tests/Core_MS.spec.ts',
             'Core_Manufactured_Home': './tests/Core_Manufactured_Home.spec.ts',
-            'GPA_CV': './tests/GPA_CV.spec.ts',
-            'GPA_Boat': './tests/GPA_Boat.spec.ts',
-            'GPA_Yacht': './tests/GPA_Yacht.spec.ts',
-            'GPA_MS': './tests/GPA_MS.spec.ts',
-            'GPA_Manufactured_Home': './tests/GPA_Manufactured_Home.spec.ts',
             'Core_BT': './tests/Core_BT.spec.ts',
             'Core_YT': './tests/Core_YT.spec.ts',
             // Backward compatibility alias: Renewal now executes with Core spec
@@ -640,85 +644,6 @@ app.post('/api/abort-tests/:sessionId', async (req, res) => {
             
             // STEP 1: Kill main process tree first
             try {
-                // if (process.platform === 'win32') {
-                //     const { exec } = require('child_process');
-                    
-                //     // Kill the main process tree
-                //     exec(`taskkill /pid ${session.process.pid} /T /F`, (error) => {
-                //         if (error) {
-                //             console.error(`❌ Error killing main process tree: ${error.message}`);
-                //         } else {
-                //             console.log(`✅ Main process tree killed for session ${sessionId}`);
-                //         }
-                //     });                    // STEP 2: SMART TARGETED KILLING - Only kill TEST browsers, preserve UI browser
-                //     console.log(`🎯 IMPLEMENTING SMART BROWSER TARGETING (preserving UI browser)...`);
-                    
-                //     // Method 1: Kill browsers launched by this specific session's process tree
-                //     exec(`wmic process where "ParentProcessId=${session.process.pid}" get ProcessId,Name,CommandLine /format:csv`, (error, stdout) => {
-                //         if (!error && stdout) {
-                //             const lines = stdout.split('\n').filter(line => line.trim());
-                //             lines.forEach(line => {
-                //                 if (line.includes('msedge.exe') || line.includes('chrome.exe')) {
-                //                     const parts = line.split(',');
-                //                     const pid = parts[parts.length - 2]; // ProcessId is second to last
-                //                     if (pid && pid.trim() && pid.trim() !== 'ProcessId') {
-                //                         exec(`taskkill /pid ${pid.trim()} /f`, (killError) => {
-                //                             if (!killError) {
-                //                                 console.log(`💀 Killed child browser process PID: ${pid.trim()}`);
-                //                             }
-                //                         });
-                //                     }
-                //                 }
-                //             });
-                //         }
-                //     });
-                    
-                //     // Method 2: Kill browsers with specific Playwright identifiers in command line
-                //     setTimeout(() => {
-                //         // Kill Edge browsers that have Playwright in their command line
-                //         exec(`wmic process where "name='msedge.exe' and (commandline like '%--test-type%' or commandline like '%--remote-debugging-port%' or commandline like '%playwright%')" delete`, (error) => {
-                //             if (error) {
-                //                 console.log(`📝 No Playwright Edge test browsers found`);
-                //             } else {
-                //                 console.log(`💀 Playwright Edge test browsers terminated (UI browser safe)`);
-                //             }
-                //         });
-                        
-                //         // Kill Chrome browsers that have Playwright in their command line
-                //         exec(`wmic process where "name='chrome.exe' and (commandline like '%--test-type%' or commandline like '%--remote-debugging-port%' or commandline like '%playwright%')" delete`, (error) => {
-                //             if (error) {
-                //                 console.log(`📝 No Playwright Chrome test browsers found`);
-                //             } else {
-                //                 console.log(`💀 Playwright Chrome test browsers terminated (UI browser safe)`);
-                //             }
-                //         });
-                //     }, 1000);
-                    
-                //     // Method 3: Kill Node processes running Playwright tests for this session
-                //     setTimeout(() => {
-                //         exec(`wmic process where "name='node.exe' and commandline like '%playwright test%'" delete`, (error) => {
-                //             if (error) {
-                //                 console.log(`📝 No active Playwright test runner found`);
-                //             } else {
-                //                 console.log(`💀 Playwright test runner processes terminated`);
-                //             }
-                //         });
-                //     }, 1500);
-                    
-                // } else {
-                //     // Unix: Kill process group
-                //     process.kill(-session.process.pid, 'SIGKILL');
-                    
-                //     // Kill browser processes on Unix
-                //     const { exec } = require('child_process');
-                //     exec('pkill -f "chromium\\|chrome\\|msedge\\|playwright"', () => {
-                //         console.log(`💀 Browser processes killed on Unix`);
-                //     });
-                // }
-                
-                // Kill main process
-                // session.process.kill('SIGKILL');
-                // console.log(`🔪 SIGKILL sent to main process for session ${sessionId}`);
                 session.abortRequested = true;
                 const runningTestNumber = session.executionState?.currentRunningTest || session.currentTestIndex;
                 session.abortedTestNumber = runningTestNumber || null;
@@ -731,32 +656,18 @@ app.post('/api/abort-tests/:sessionId', async (req, res) => {
                 }
                 activeSessions.set(sessionId, session);
 
-                // const sessionDir = path.join(__dirname, 'sessions', sessionId);
-
-                // fs.writeFileSync(
-                //     path.join(sessionDir, 'abort.flag'),
-                //     'ABORT',
-                //     'utf8'
-                // );
-
                 // Persistent execution flag
                 fs.writeFileSync(
                     executionAbortFile,
                     'ABORTED',
                     'utf8'
                 );
-                // console.log('='.repeat(80));
-// console.log('🔪 SIGKILL SENT');
-// console.log(`PID: ${session.process?.pid}`);
-// console.log(`Killed flag: ${session.process?.killed}`);
-// console.log('='.repeat(80));
+                
                 
             } catch (killError) {
                 console.error(`❌ Error in aggressive browser killing: ${killError.message}`);
             }
             
-            // Mark process as killed in session
-            // session.process = null;
         } else {
             console.log(`⚠️ No active process found for session ${sessionId}`);
             if (session.process && session.process.killed) {
@@ -765,16 +676,6 @@ app.post('/api/abort-tests/:sessionId', async (req, res) => {
                 console.log(`   No process reference in session`);
             }
         }
-//         setTimeout(() => {
-// exec(
-// 'tasklist | findstr /i "node msedge playwright"',
-// (err, stdout) => {
-// console.log('📋 PROCESSES 5 SECONDS AFTER KILL');
-// console.log(stdout);
-// }
-// );
-// }, 5000);
-          // Update session status
         session.status = 'abort_requested';
         session.lastActivity = new Date();        // 🔧 NEW SEPARATE PARTIAL REPORTING SYSTEM (NOT TOUCHING EXISTING LOGIC)
         let lobForReports = session.currentLOB;
@@ -793,8 +694,6 @@ app.post('/api/abort-tests/:sessionId', async (req, res) => {
                 lobForReports = 'CORE_DB';
             } else if (session.uploadedFileName.includes('DWB')) {
                 lobForReports = 'DWB_CORE';
-            } else if (session.uploadedFileName.includes('GPA')) {
-                lobForReports = 'GPA';
             } else {
                 lobForReports = 'Test'; // Generic fallback
             }
@@ -803,31 +702,6 @@ app.post('/api/abort-tests/:sessionId', async (req, res) => {
             console.log(`🛑 NEW ABORT FLOW: Generating dedicated abort reports for: ${lobForReports}`);
             console.log(`🔧 DEBUG: About to call generateAbortReports(${sessionId}, ${lobForReports})`);
             
-            // 🛑 NEW: Generate dedicated abort reports (PDF + Excel)
-            // setTimeout(() => {
-            //     try {
-            //         console.log(`🚀 ABORT: Calling generateAbortReports for session: ${sessionId}, LOB: ${lobForReports}`);
-            //         generateAbortReports(sessionId, lobForReports);
-            //         console.log(`✅ ABORT: Dedicated abort reports generated for session: ${sessionId}`);
-                    
-            //         // Also copy any existing partial reports to session for backup
-            //         console.log(`🔄 ABORT: Also copying partial reports as backup...`);
-            //         copyPartialReportsToSession(sessionId, lobForReports);
-            //         console.log(`✅ ABORT: Backup copy completed for session: ${sessionId}`);
-            //     } catch (error) {
-            //         console.error(`❌ ABORT: Error in generateAbortReports:`, error);
-            //     }
-            // }, 2000);
-            // 
-            // const sessionDir = path.join(__dirname, 'sessions', sessionId);
-            // fs.writeFileSync(
-            //     path.join(sessionDir, 'abort.flag'),
-            //     'ABORT',
-            //     'utf8'
-            // );
-
-            // console.log(`🛑 Abort flag created for session ${sessionId}`);
-            //  // Give 2 seconds for processes to properly terminate
         } else {
             console.log(`⚠️ No LOB identified for partial reports. Session: ${sessionId}`);
             console.log(`🔧 DEBUG: session.currentLOB = ${session.currentLOB}`);
@@ -835,10 +709,6 @@ app.post('/api/abort-tests/:sessionId', async (req, res) => {
         }
         
         activeSessions.set(sessionId, session);
-
-        // Publish the terminal abort state immediately. The Playwright process
-        // may still be flushing its current report, but the UI must not wait
-        // for another screenshot or test hook before showing ABORTED.
         finalizeSessionAbort(sessionId, session.abortedTestNumber);
 
         if (lobForReports) {
@@ -848,34 +718,7 @@ app.post('/api/abort-tests/:sessionId', async (req, res) => {
         }
         
         console.log(`📝 Session status updated to 'abort_requested' for ${sessionId}`);// STEP 3: Targeted cleanup after 2 seconds to ensure test browsers are killed
-        // setTimeout(() => {
-        //     console.log(`🧹 Final targeted cleanup for session ${sessionId}...`);
-            
-        //     if (process.platform === 'win32') {
-        //         const { exec } = require('child_process');
-                
-        //         // Final sweep - kill ONLY test-related browsers (preserve UI browser)
-        //         exec(`wmic process where "commandline like '%playwright%'" delete`, (error) => {
-        //             if (!error) {
-        //                 console.log(`🗑️ Final cleanup: Test browser processes eliminated (UI preserved)`);
-        //             }
-        //         });
-                
-        //         // Kill only session-specific Node processes
-        //         exec(`wmic process where "commandline like '%${sessionId}%'" delete`, (error) => {
-        //             if (!error) {
-        //                 console.log(`🗑️ Session-specific processes cleaned up`);
-        //             }
-        //         });
-                
-        //         // Kill any remaining cmd processes that were spawned for this session
-        //         exec(`wmic process where "commandline like '%Session ${sessionId.substring(0, 8)}%'" delete`, (error) => {
-        //             if (!error) {
-        //                 console.log(`🗑️ Session terminal processes cleaned up`);
-        //             }
-        //         });
-        //     }
-        // }, 2000);
+        
         console.log(
             `🛑 Sending aborted status for test ${session.currentTestIndex}`
         );
@@ -908,7 +751,7 @@ app.post('/api/abort-tests/:sessionId', async (req, res) => {
         });    }
 });
 
-// 🛑 NEW SEPARATE ABORT REPORT GENERATOR (doesn't touch existing complete flow)
+
 function generateAbortReports(sessionId, lob) {
     try {
         console.log(`🛑 ABORT: Generating separate abort reports for ${lob}, session: ${sessionId}`);
@@ -926,12 +769,7 @@ function generateAbortReports(sessionId, lob) {
         };
         
         console.log(`🔍 ABORT: Using captured data:`, capturedData);
-          // 📊 Generate ABORT Excel Report with real-time data
-        // generateAbortExcelReport(sessionId, lob, timestamp, baseReportsDir, capturedData, session);
-        
-        // 📋 Generate ABORT PDF Report with real-time data
-        // generateAbortPdfReport(sessionId, lob, timestamp, basePdfDir, capturedData);
-        
+         
         console.log(`✅ ABORT: Reports generated for ${lob} with timestamp ${timestamp}`);
         
     } catch (error) {
@@ -1422,16 +1260,8 @@ app.get('/api/results/:sessionId/:lob/excel', (req, res) => {
         
         console.log(`🔍 Excel download request for session ${sessionId}, LOB: ${lob}`);        // Map LOB to Excel file names (using exact result file names)
         const excelMappings = {
-            'GPA_Dwelling_Basic': 'GPA_DwellingBasic-Result.xlsx',
-            'GPA_Dwelling_Special': 'GPA_DwellingSpecial-result.xlsx', 
-            'GPA_HomeOwners': 'GPA_HomeOwners-result.xlsx',
             'Core_Dwelling_Basic': 'DWB_CORE-Result.xlsx',
             'Core_Dwelling_Special': 'Dwelling_Special_CORE-Result.xlsx',
-            'GPA_CV': 'Collector-Vehicles-Result.xlsx',
-            'GPA_Boat': 'BT-Result.xlsx',
-            'GPA_Yacht': 'YT-Result.xlsx',
-            'GPA_MS': 'MS-Result.xlsx',
-            'GPA_Manufactured_Home': 'GPA_ManufacturedHome-result.xlsx',
             'Renewal_DB': 'DWB_CORE-Result.xlsx'
         };
         
@@ -2148,18 +1978,19 @@ app.get('/api/test-mapping', (req, res) => {
             },
             'Core_Dwelling_Basic': {
                 testFile: './tests/Core_Dwelling_Basic.spec.ts',
-                excelDataSource: 'Dwelling_Basic_Core_PolicyChange_Test_Generator_v1.xlsm',
+                excelDataSource: '{State}_DB_ConvertedTable.xls or {State}_DWB_ConvertedTable.xls',
                 resultFile: 'DWB_CORE-Result.xlsx',
                 resultPattern: 'DWB_CORE*',
                 description: 'Core Dwelling Basic test automation'
             },
             'Core_Dwelling_Special': {
                 testFile: './tests/Core_Dwelling_Special.spec.ts',
-                excelDataSource: 'Dwelling_Special_Core_PolicyChange_Test_Generator_v1.xlsm',
+                excelDataSource: '{State}_DS/DWS/DWSP_ConvertedTable.xls',
                 resultFile: 'Dwelling_Special_CORE-Result.xlsx',
                 resultPattern: 'DWS_CORE*',
                 description: 'Core Dwelling Special test automation'
-            },            'GPA_CV': {
+            },
+            'GPA_CV': {
                 testFile: './tests/GPA_CV.spec.ts',
                 excelDataSource: 'CollectorVehicle_Test_Case_Generator_Issuance_V4.xlsm',
                 resultFile: 'Collector-Vehicles-Result.xlsx',

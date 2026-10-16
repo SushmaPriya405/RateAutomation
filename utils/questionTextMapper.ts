@@ -155,6 +155,7 @@
 // }
 
 import { Page } from "@playwright/test";
+import fs from "fs";
 import * as xlsx from "xlsx";
 import * as path from "path";
 import { xpathLiteral } from "./question-helper";
@@ -172,93 +173,79 @@ export function readExcelfile(filepath: string, sheetName: string): any[] {
   }
   return data;
 }
-// ✅ DYNAMIC CONFIGURATION - Can be initialized with different Excel files
-let configuredExcelPath: string | null = null;
-let configuredSheetName: string = "Help";
 let helpSheet: any[] = [];
 let rawHelpSheet: any[] = [];
 
-// ✅ DEFAULT FALLBACK - For backward compatibility
-const defaultExcelPath = path.join(__dirname, "..", "testdata", "");
+const sheetsHelpJsonPath = path.join(__dirname, "..", "testdata", "sheetsHelps.json");
 
-function loadHelpSheet(excelFilePath: string, sheetName: string) {
+function loadHelpSheetFromJson(jsonFilePath: string) {
   try {
-    console.log(`📊 Loading question mapper from: ${excelFilePath}, Sheet: ${sheetName}`);
-    const workbook = xlsx.readFile(excelFilePath);
-    
-    if (!workbook.Sheets[sheetName]) {
-      console.warn(`⚠️ Sheet '${sheetName}' not found in Excel file. Available sheets:`, Object.keys(workbook.Sheets));
-      rawHelpSheet = [];
-      return;
-    }
-    const rawSheet = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: "" });
-    rawHelpSheet = rawSheet;
-    console.log("📋 Help sheet raw data sample:", rawSheet.slice(0, 3));
-    
-    // Forward fill 'Sheets' and 'Field' columns to handle merged cells
-    let lastScreen = "";
-    let lastShortCode = "";
-    
-    helpSheet = rawSheet.map((row: any) => {
-      // Support multiple column name variations for Page/Screen
-      if (row["Sheets"] || row["Screens"] || row["Page"]) {
-        lastScreen = (row["Sheets"] || row["Screens"] || row["Page"])?.toString().trim().replace(/\s+/g, "_") || lastScreen;
-      }
-      
-      // Forward fill Short Code for merged cells (multiple questions per code)
-      // Priority: Field > Short Code > Question Code
-      const currentShortCode = row["Field"]?.toString().trim() || row["Short Code"]?.toString().trim() || row["Question Code"]?.toString().trim();
-      if (currentShortCode) {
-        lastShortCode = currentShortCode;
-      }
-      
-      return {
-        screen: lastScreen,
-        questionCode: lastShortCode, // Use forward-filled value for merged cells
-        // Question text from "Description" or "Question" column
-        question: row["Description"]?.toString().trim() || row["Question"]?.toString().trim()
-      };
-    }).filter(row => row.questionCode && row.question); // Only keep rows with both code and question
-    
-    console.log(`✅ Question mapper loaded: ${helpSheet.length} entries from ${excelFilePath}`);
-    console.log(`📋 Sample entries:`, helpSheet.slice(0, 3));
-    
-    // ✅ DIAGNOSTIC: Log all Issuance questions to help debug
-    const issuanceQuestions = helpSheet.filter(r => r.screen === "Issuance");
-    console.log(`🔍 Found ${issuanceQuestions.length} questions for Issuance screen`);
-    if (issuanceQuestions.length > 0) {
-      console.log(`📋 Issuance questions sample:`, issuanceQuestions.slice(0, 5).map(r => ({ code: r.questionCode, question: r.question?.substring(0, 50) })));
-    }
-    
-    // Log Short Codes with multiple variants
-    const codeGroups = helpSheet.reduce((acc: any, row: any) => {
-      acc[row.questionCode] = (acc[row.questionCode] || 0) + 1;
-      return acc;
-    }, {});
-    const multiVariantCodes = Object.entries(codeGroups).filter(([_, count]) => (count as number) > 1);
-    if (multiVariantCodes.length > 0) {
-      console.log(`📋 Short Codes with multiple variants:`, multiVariantCodes.map(([code, count]) => `${code}(${count})`).slice(0, 5));
-    }
+    console.log(`📊 Loading question mapper from JSON: ${jsonFilePath}`);
+    const entries = JSON.parse(fs.readFileSync(jsonFilePath, "utf8"));
+    if (!Array.isArray(entries)) throw new Error("SheetsHelp JSON must contain an array");
+
+    rawHelpSheet = entries;
+    helpSheet = entries.flatMap((entry: any) => {
+      const questionCode = String(entry?.Field ?? "").trim();
+      const descriptions = Array.isArray(entry?.Description)
+        ? entry.Description
+        : entry?.Description == null ? [] : [entry.Description];
+
+      return descriptions
+        .map((question: unknown) => String(question ?? "").trim())
+        .filter((question: string) => question.length > 0)
+        .map((question: string) => ({ screen: "", questionCode, question }));
+    }).filter((row: any) => row.questionCode);
+
+    console.log(`✅ Question mapper loaded: ${helpSheet.length} variants across ${rawHelpSheet.length} fields`);
   } catch (error) {
-    console.error(`❌ Failed to load question mapper from ${excelFilePath}:`, error);
-    helpSheet = []; // Initialize empty to prevent crashes
+    console.error(`❌ Failed to load question mapper from JSON:`, error);
+    helpSheet = [];
     rawHelpSheet = [];
   }
 }
 
-// ✅ DYNAMIC INITIALIZATION FUNCTION
-export function initQuestionMapper(excelFilePath: string, sheetName: string = "Help") {
-  configuredExcelPath = excelFilePath;
-  configuredSheetName = sheetName;
-  loadHelpSheet(configuredExcelPath, configuredSheetName);
+function loadHelpSheetFromExcel(excelFilePath: string, sheetName: string) {
+  try {
+    console.log(`📊 Loading question mapper from: ${excelFilePath}, Sheet: ${sheetName}`);
+    const workbook = xlsx.readFile(excelFilePath);
+    const sheet = workbook.Sheets[sheetName];
+    if (!sheet) throw new Error(`Sheet '${sheetName}' not found`);
+
+    rawHelpSheet = xlsx.utils.sheet_to_json(sheet, { defval: "" });
+    let lastScreen = "";
+    let lastShortCode = "";
+    helpSheet = rawHelpSheet.map((row: any) => {
+      const screen = row["Sheets"] || row["Screens"] || row["Page"];
+      if (screen) lastScreen = String(screen).trim().replace(/\s+/g, "_");
+      const shortCode = row["Field"] || row["Short Code"] || row["Question Code"];
+      if (shortCode) lastShortCode = String(shortCode).trim();
+
+      return {
+        screen: lastScreen,
+        questionCode: lastShortCode,
+        question: String(row["Description"] || row["Question"] || "").trim()
+      };
+    }).filter((row: any) => row.questionCode && row.question);
+
+    console.log(`✅ Question mapper loaded: ${helpSheet.length} entries from ${excelFilePath}`);
+  } catch (error) {
+    console.error(`❌ Failed to load question mapper from ${excelFilePath}:`, error);
+    helpSheet = [];
+    rawHelpSheet = [];
+  }
 }
 
-// ✅ LAZY INITIALIZATION - Load default if not configured
+export function initQuestionMapper(excelFilePath: string, sheetName: string = "Help") {
+  loadHelpSheetFromExcel(excelFilePath, sheetName);
+}
+
+export function initQuestionMapperFromJson(jsonFilePath: string = sheetsHelpJsonPath) {
+  loadHelpSheetFromJson(jsonFilePath);
+}
+
 function ensureHelpSheetLoaded() {
-  if (helpSheet.length === 0 && !configuredExcelPath) {
-    console.log("📊 Loading default question mapper (backward compatibility)");
-    loadHelpSheet(defaultExcelPath, "Help");
-  }
+ initQuestionMapperFromJson();
 }
 
 export function getHelpSheetRows(): any[] {
@@ -273,10 +260,11 @@ export function getQuestionTextByCode(screenName: string, questionCode: string):
   
   console.log(`🔍 Looking for question: Screen="${normalizedScreen}", Code="${normalizedCode}"`);
   
-  const match = helpSheet.find((row: any) =>
-    row.screen === normalizedScreen &&
+  const codeMatches = helpSheet.filter((row: any) =>
     row.questionCode?.toString().trim() === normalizedCode
   );
+  const match = codeMatches.find((row: any) => row.screen === normalizedScreen) ||
+    codeMatches.find((row: any) => !row.screen);
   
   if (match) {
     console.log(`✅ Found question: "${match.question}"`);
@@ -338,24 +326,27 @@ export function getQuestionByShortCode(shortCode: string): string | null {
 export function getAllQuestions(screenName: string): string[] {
   ensureHelpSheetLoaded();
   const normalizedScreen = screenName.trim().replace(/\s+/g, "_");
-  return helpSheet
-    .filter(row => row.screen === normalizedScreen && row.question)
+  const screenRows = helpSheet.filter(row => row.screen === normalizedScreen);
+  return (screenRows.length ? screenRows : helpSheet.filter(row => !row.screen))
+    .filter(row => row.question)
     .map(row => row.question!);
 }
 
 export function getQuestionCodesForScreen(screenName: string): string[] {
   ensureHelpSheetLoaded();
   const normalizedScreen = screenName.trim().replace(/\s+/g, "_");
-  return helpSheet
-    .filter(row => row.screen === normalizedScreen && row.questionCode)
+  const screenRows = helpSheet.filter(row => row.screen === normalizedScreen);
+  return (screenRows.length ? screenRows : helpSheet.filter(row => !row.screen))
+    .filter(row => row.questionCode)
     .map(row => row.questionCode!);
 }
 
 export function getQuestionMeta(screenName: string): { code: string; question: string }[] {
   ensureHelpSheetLoaded();
   const normalizedScreen = screenName.trim().replace(/\s+/g, "_");
-  return helpSheet
-    .filter(row => row.screen === normalizedScreen && row.question && row.questionCode)
+  const screenRows = helpSheet.filter(row => row.screen === normalizedScreen);
+  return (screenRows.length ? screenRows : helpSheet.filter(row => !row.screen))
+    .filter(row => row.question && row.questionCode)
     .map(row => ({
       code: row.questionCode!,
       question: row.question!
@@ -394,8 +385,8 @@ export async function getMatchedQuestionFromUI(
   // Try each variant in UI until one matches
   for (let i = 0; i < variants.length; i++) {
     const questionText = variants[i];
-    // const locator = page.locator(`//*[contains(normalize-space(text()), "${questionText}")]`);
-    const locator = page.locator(`//*[contains(normalize-space(text()), ${xpathLiteral(questionText.trim())})]`);
+    const normalizedQuestion = questionText.trim().replace(/\s+/g, " ");
+    const locator = page.locator(`//*[contains(normalize-space(.), ${xpathLiteral(normalizedQuestion)})]`);
     const count = await locator.count();
     
     if (count > 0) {
@@ -429,34 +420,7 @@ export async function getMatchedQuestionText(
   code: string,
   options?: { optional?: boolean }
 ): Promise<string | null> {
-  // Always fetch from Excel first
-  const questionText = getQuestionTextByCode(screen, code);
-  if (!questionText) {
-    const msg = `❌ Question code '${code}' not found in Excel for screen '${screen}'`;
-    if (options?.optional) {
-      console.warn(msg);
-      return null;
-    } else {
-      throw new Error(msg);
-    }
-  }
-
-  // Validate UI presence
-  const locator = page.locator(`//*[contains(normalize-space(text()), "${questionText}")]`);
-  const count = await locator.count();
-
-  if (count === 0) {
-    const msg = `⚠️ Question "${questionText}" not found in UI for screen '${screen}'`;
-    if (options?.optional) {
-      console.warn(msg);
-      // ✅ Return Excel text instead of null so locators can still be built
-      return questionText;
-    } else {
-      throw new Error(msg);
-    }
-  }
-
-  return questionText;
+  return getMatchedQuestionFromUI(page, code, options);
 }
 
 /**

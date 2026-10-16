@@ -1,0 +1,691 @@
+[
+  {
+    "Field": "CreditReport",
+    "Description": [
+      "In connection with this application for insurance, we may review your credit report or obtain or use a credit-based insurance score based on the information contained in that credit report. We may use a third party in connection with the development of your insurance score.",
+      "In connection with a review of our overall risk portfolio, we may pull and aggregate the data contained in your credit report or obtain the credit-based insurance score based on the information contained in that credit report. We may use a third party in connection with the development of your insurance score.",
+      "In connection with this application for insurance, we may review your credit report or obtain or use a credit-based insurance score based on the information contained in that credit report. We may use a third party in connection with the development of your insurance score. The Department of Financial Services offers free financial literacy programs to assist you with insurance-related questions, including how credit works and how credit scores are calculated.  To learn more, visit www.MyFloridaCFO.com",
+      "In connection with underwriting or rating this application for insurance, we may review your credit history or obtain or use a credit based insurance score based on the information contained in that credit history. We may use a third party in connection with the development of your insurance score.",
+      "In connection with this application for information, we may review your credit report or obtain or use a credit based insurance score based on the information contained in that credit report. We may use a third party in connection with the development of your insurance score. We order your credit report and/or insurance score as soon as possible after receipt of your application. We use information contained in a consumer report to develop a credit-based insurance score. That score is just one of many factors that are used to underwrite and/or rate your policy.",
+      "In connection with this application for insurance, we may review your credit report or obtain or use a credit based insurance score based on the information contained in that credit report. We may use a third party in connection with the development of your insurance score. If we do use a credit based score, you will have the right on an annual basis to request that we obtain a current credit report for you and determine whether use of the new credit report would result in a decrease in your insurance premiums. If the new credit report that we receive would result in a decrease in your insurance premiums, we will make that reduction. If the new credit information would not reduce your insurance premiums, the credit report will not be used to impact your premiums in any way.",
+      "In connection with this application for insurance, we may review your credit report or obtain or use a credit-based score based on the information contained in that credit report. We may use a third party in connection with the development of your credit score.",
+      "In connection with this application for insurance, we may review your credit history or obtain or use a credit-based insurance score based on the information contained in that credit history. We may use a third party in connection with the development of your insurance score. You may request a written statement describing how we use credit histories or insurance scores.",
+      "In connection with this insurance, we may review your credit report or obtain or use a credit-based insurance score based on information contained in that report. An insurance score uses information from your credit report to help predict how often you are likely to file claims and how expensive those claims will be. Typical items from a credit report that could affect a score include, but are not limited to, the following: payment history, number of revolving accounts, number of new accounts, the presence of collection accounts, bankruptcies and foreclosures. The information used to develop the insurance score comes from LexisNexis."
+    ]
+  },
+  {
+    "Field": "LossHistoryReport",
+    "Description": [
+      "In connection with this application for insurance, we may review your claims history or loss experience and may report future claims made by you to a claims history provider.",
+      "In connection with this application for insurance, we may review your claims history and/or the claims history of the property (if applicable)."
+    ]
+  },
+  {
+    "Field": "DisclaimerVerification",
+    "Description": [
+      "Disclaimer has been read and applicant did not object.",
+      "Disclaimer has been read and applicant did not object. The credit disclosure must be provided at the time of application to each applicant and may be given orally, in writing or electronically.  A copy of the Texas Use of Credit Information Disclosure is available by clicking the Credit Disclosure option above."
+    ]
+  },
+  {
+    "Field": "Pre_FeeDisclosure",
+    "Description": [
+      "The applicant has been made aware that recurring installment fees will be charged with each subsequent installment payment depending on the selected payment method; recurring charges for Electronic Funds Transfer (EFT) will be $3 per transaction or $7 per payment plan installment.  Applicant’s election to proceed with installment payments evidences their awareness of, and willingness to pay, these installment fees."
+    ]
+  },
+  {
+    "Field": "FeeDisclosure",
+    "Description": [
+      "The applicant has been made aware that the following fees may apply: If a payment is denied by your financial institution, we will charge a Non-Sufficient Funds fee of $20. If a payment is late, we will charge a Late Payment of $15. If you allow your policy to lapse and then reinstate the policy, we will charge a Reinstatement Payment fee of $10. The applicant understands that if premium and fees are not paid, we will consider the premium unpaid and the policy or policies may be cancelled for non-payment in accordance with each policy and applicable law.",
+      "The applicant has been made aware that the following fees may apply: If a payment is denied by your financial institution, we will charge a Non-Sufficient Funds fee of $20. If a payment is late, we will charge a Late Payment fee of $5. If you allow your policy to lapse and then reinstate the policy, we will charge a Reinstatement Payment fee of $5. The applicant understands that if premium and fees are not paid, we will consider the premium unpaid and the policy or policies may be cancelled for non-payment in accordance with each policy and applicable law.",
+      "The applicant has been made aware that the following fees may apply: If a payment is denied by your financial institution, we will charge a Non-Sufficient Funds fee of $20. If a payment is late, we will charge a Late Payment fee of $10. If you allow your policy to lapse and then reinstate the policy, we will charge a Reinstatement Payment fee of $10. The applicant understands that if premium and fees are not paid, we will consider the premium unpaid and the policy or policies may be cancelled for non-payment in accordance with each policy and applicable law."
+    ]
+  },
+  {
+    "Field": "ArsonFraud",
+    "Description": [
+      "Has the applicant been convicted of arson, fraud, or other insurance-related offenses?",
+      "Has the applicant been convicted of arson within the last 5 years, or fraud, an intentional act or other insurance-related offenses within the last 3 years?"
+    ]
+  },
+  {
+    "Field": "Foreclosure",
+    "Description": [
+      "Is the applicant in foreclosure or currently 60 days or more past due on mortgage payments for any property?"
+    ]
+  },
+  {
+    "Field": "How_Dwell_Occupied",
+    "Description": [
+      "How is the dwelling occupied?"
+    ]
+  },
+  {
+    "Field": "Association",
+    "Description": [
+      "Is the driver a member of any of the following associations? If so, select one."
+    ]
+  },
+  {
+    "Field": "PaperlessDiscount",
+    "Description": [
+      "Does the applicant intend to enroll in paperless policy delivery?"
+    ]
+  },
+  {
+    "Field": "PaidInFullDiscount",
+    "Description": [
+      "Will the applicant be paying in full for this policy?",
+      "Will the applicant be paying in full for this policy? (Not eligible if Lienholder billed)"
+    ]
+  },
+  {
+    "Field": "MultiPolicyDiscount",
+    "Description": [
+      "Eligible for multi-policy discount?"
+    ]
+  },
+  {
+    "Field": "AssociationDiscount",
+    "Description": [
+      "Is the applicant a member of any of the following organizations?  If so, select one."
+    ]
+  },
+  {
+    "Field": "AutoHomeDiscount",
+    "Description": [
+      "Does the applicant currently have an automobile policy written through your agency?"
+    ]
+  },
+  {
+    "Field": "PriorLosses",
+    "Description": [
+      "Has the applicant had any losses above $500 in the past 3 years?",
+      "Has the applicant had any losses above $500 in the past 3 years that were not weather, warranty, volcanic action, or earthquake/landslide?"
+    ]
+  },
+  {
+    "Field": "InsuranceDeclinedCancelled",
+    "Description": [
+      "Has the applicant had similar insurance declined, cancelled, or non-renewed?"
+    ]
+  },
+  {
+    "Field": "NumberDwellingsOwned",
+    "Description": [
+      "How many dwellings does the applicant own?"
+    ]
+  },
+  {
+    "Field": "OccasionalRental",
+    "Description": [
+      "Will the dwelling be occasionally rented to others?"
+    ]
+  },
+  {
+    "Field": "DaysUninsured",
+    "Description": [
+      "For the length of time the applicant has owned the dwelling, how many days has it gone uninsured?"
+    ]
+  },
+  {
+    "Field": "MilitaryLapse",
+    "Description": [
+      "Was this lapse the result of military deployment or active military duty?"
+    ]
+  },
+  {
+    "Field": "UnderConstruction",
+    "Description": [
+      "Under Construction or Major Renovation?"
+    ]
+  },
+  {
+    "Field": "SupplementalHeating",
+    "Description": [
+      "Supplemental Heating Source (including wood/pellet burning stove)?"
+    ]
+  },
+  {
+    "Field": "FloodLossAtLocation",
+    "Description": [
+      "Has there been a flood loss at this location?"
+    ]
+  },
+  {
+    "Field": "InspectionFeeWaiver",
+    "Description": [
+      "Inspection Fee Waiver"
+    ]
+  },
+  {
+    "Field": "WroughtIronBars",
+    "Description": [
+      "Are there wrought iron bars in all windows and doors of the dwelling?"
+    ]
+  },
+  {
+    "Field": "CentralFireSmokeAlarm",
+    "Description": [
+      "Central Station Fire & Smoke Alarm"
+    ]
+  },
+  {
+    "Field": "CentralBurglarAlarm",
+    "Description": [
+      "Central Station Burglar Alarm"
+    ]
+  },
+  {
+    "Field": "PrivateFireCompany",
+    "Description": [
+      "“Does the risk subscribe to services of a private fire company?”"
+    ]
+  },
+  {
+    "Field": "PermanentStormShutter",
+    "Description": [
+      "Does the unit have permanent storm shutters meeting published building codes?"
+    ]
+  },
+  {
+    "Field": "ImpactResistantGla",
+    "Description": [
+      "Does the unit have impact-resistant glass meeting published building codes?"
+    ]
+  },
+  {
+    "Field": "PermanentStormShuttersOrImpactResistantGlass",
+    "Description": [
+      "Does the dwelling qualify for the Storm Mitigation discount based on an Inspection Certificate issued by a licensed contractor or governmental agency due to having permanent storm shutters or impact resistant glass on all windows?"
+    ]
+  },
+  {
+    "Field": "IBHSFortifiedCertification",
+    "Description": [
+      "Does the unit have an IBHS FORTIFIED certification?"
+    ]
+  },
+  {
+    "Field": "QualifyForHurricaneMitigation",
+    "Description": [
+      "Does the dwelling qualify for a Hurricane Mitigation Credit based on a certified signed Louisiana Hurricane Loss Mitigation Survey form as promulgated by the Louisiana Department of Insurance?"
+    ]
+  },
+  {
+    "Field": "AttachedLossMitigationSurvey",
+    "Description": [
+      "Is form IP-LA-N-0002 filled out, appropriately signed and ready to be attached to the submission?  Note that a registered wind mitigation surveyor, architect, engineer or code enforcement officer must inspect the dwelling and fill out and sign the form.  Those individuals must be registered with the Louisiana State Uniform Construction Code Council (LSUCC).  Certificate Holders can be found at: http://lsuccc.dps.louisiana.gov by clicking on Search Certificate Holders and then on Wind Mitigation Surveyor.  A blank form is included with new business packets and is also available in the Forms library.  This credit does not apply to Manufactured Homes unless they are modular homes."
+    ]
+  },
+  {
+    "Field": "BuildingCodeConstruction",
+    "Description": [
+      "Which building or residential code was the dwelling constructed to?"
+    ]
+  },
+  {
+    "Field": "ExposureCategoryConstruction",
+    "Description": [
+      "Which Exposure Category was the dwelling constructed to withstand?"
+    ]
+  },
+  {
+    "Field": "RoofSecondaryWaterResistanceSystem",
+    "Description": [
+      "Does the roof have a secondary water intrusion or resistance system?"
+    ]
+  },
+  {
+    "Field": "OpeningProtection",
+    "Description": [
+      "Which type of opening protection does the dwelling have?"
+    ]
+  },
+  {
+    "Field": "RoofGeometry",
+    "Description": [
+      "Which type of roof geometry does the dwelling have?"
+    ]
+  },
+  {
+    "Field": "RoofDeckAttachment",
+    "Description": [
+      "Which type of roof deck attachment is noted?"
+    ]
+  },
+  {
+    "Field": "RoofWallConnection",
+    "Description": [
+      "Which roof-wall connection types were used?"
+    ]
+  },
+  {
+    "Field": "DoorType",
+    "Description": [
+      "Which type of doors does the dwelling have?"
+    ]
+  },
+  {
+    "Field": "AutomaticSprinklerSystem",
+    "Description": [
+      "Is the dwelling equipped with an automatic sprinkler system that meets the NFPA B-D standards?"
+    ]
+  },
+  {
+    "Field": "QualifyForSCMitigationDiscount",
+    "Description": [
+      "Does the dwelling qualify for the South Carolina Mitigation Discount?"
+    ]
+  },
+  {
+    "Field": "AttachedSCLossMitigationSurvey",
+    "Description": [
+      "Is either the Mitigation Verification Affidavit, form IP-SC-G-0001 (10-17) or the Mitigation Verification Certification, form IP-SC-G-0002 (10/17) filled out, appropriately signed and ready to be attached to the submission?  Form IP-SC-G-0002 (10-17) is based on a written certification or a report (with certification) from a licensed professional with expertise in construction techniques, building design or property inspection or appraisal including, but not limited to an: architect; appraiser; building or appraisal including, but not limited to an: architect; appraiser; building inspector; or contractor that the retrofitting technique or mitigation measure has been implemented in accordance with applicable standards; or form IP-SC-G-0001 (10-17) an Affidavit from a property owner certifying that the mitigation or construction techniques have been implemented. Certified copies of the applicable receipts must accompany the affidavit. Insurers may verify through physical inspection that the work described in the certification from a licensed professional or expert or the affidavit from the property owner has been performed."
+    ]
+  },
+  {
+    "Field": "HomeComplianceWithCode",
+    "Description": [
+      "Is the home built in full compliance with the South Carolina Building Code?"
+    ]
+  },
+  {
+    "Field": "RoofComplianceWithCode",
+    "Description": [
+      "Is the roof covering attached in compliance with the current edition of the International Residential Code as adopted by the South Carolina Building Codes Council or the manufacturer's installation requirements for the wind speed for the site on which the home is located?"
+    ]
+  },
+  {
+    "Field": "SheathingComplianceWithCode",
+    "Description": [
+      "Is the sheathing attached in compliance with the current edition of the International Residential Code as adopted by the South Carolina Building Codes Council or an engineered design for the wind speed for the site on which the home is located?"
+    ]
+  },
+  {
+    "Field": "NaillipsStrapomplianceWithCode",
+    "Description": [
+      "Are there toe nails, clips, single straps and/or double straps that are installed in compliance with the current edition of the International Residential Code as adopted by the South Carolina Building Codes Council or an engineered design for the wind speed for the site on which the home is located?"
+    ]
+  },
+  {
+    "Field": "ProtectionLayerBetweenShinglesSheathing",
+    "Description": [
+      "Does this roof have roofing felt or other approved layer of protection between the shingles and the roof sheathing below?  All secondary water resistance products must be installed per the manufacturer's instructions."
+    ]
+  },
+  {
+    "Field": "WindowShuttersMeetCode",
+    "Description": [
+      "Have storm shutters been installed on all windows meeting the minimum requriements of the International Residential Code?"
+    ]
+  },
+  {
+    "Field": "ImpactResistantGlassMeetCode",
+    "Description": [
+      "Has impact resistant glass meeting the minimum requirements of the International Residential Code been installed?"
+    ]
+  },
+  {
+    "Field": "GarageDoorsMeetImpactStandards",
+    "Description": [
+      "If there is an attached garage, does the door(s) meet or has it been retrofitted to meet ASCE 7/88 wind and debris impact standards, or is the door(s) compliant with SSTD-12 wind pressure and debris impact standards?"
+    ]
+  },
+  {
+    "Field": "HomeBuiltAfterSpecificDate",
+    "Description": [
+      "Was the home built on or after January 1, 1995?"
+    ]
+  },
+  {
+    "Field": "FloridaBuildingCodeComplianceDocumentation",
+    "Description": [
+      "Does the home comply with the American Society of Civil Engineers Standard ANSI/ASCE 7-88, and is the appropriate documentation for the Florida Building Code Compliance Discount ready to be attached to the submission?"
+    ]
+  },
+  {
+    "Field": "WildfireMitigationCommunityLevel",
+    "Description": [
+      "Wildfire Mitigation Discount - Community Level"
+    ]
+  },
+  {
+    "Field": "WFFirewiseUSARecognitionProgram",
+    "Description": [
+      "Firewise USA Recognition Program Discount"
+    ]
+  },
+  {
+    "Field": "WFFireRiskReductionCommunity",
+    "Description": [
+      "Fire Risk Reduction Community Discount"
+    ]
+  },
+  {
+    "Field": "WildfireMitigationPropertyLevel",
+    "Description": [
+      "Wildfire Mitigation Discount - Property Level"
+    ]
+  },
+  {
+    "Field": "IBHSFortifiedCertificationBoolean",
+    "Description": [
+      "IBHS Wildfire Prepared Home Discount"
+    ]
+  },
+  {
+    "Field": "ClearingVegetationDebrisUnderDecks",
+    "Description": [
+      "Clearing of Vegetation and Debris from Under Decks Discount"
+    ]
+  },
+  {
+    "Field": "MoveableCombustibleMaterialWithin5FTBuilding",
+    "Description": [
+      "Moveable Combustible Material (Vegetation, Debris, Mulch, Stored Items…) Cleared within 5 Feet of Building Discount"
+    ]
+  },
+  {
+    "Field": "IncorporationOnlyNonCombustibleMaterialWithin5FTBuilding",
+    "Description": [
+      "Incorporation of Only Non-Combustible Materials (i.e Fence & Gate...) within 5 Feet of Building Discount"
+    ]
+  },
+  {
+    "Field": "NoCombustibleStructureWithin30FTBuilding",
+    "Description": [
+      "No Combustible Structure (i.e. Sheds, Outbuildings...) within 30 Feet of Buildings being Evaluated Discount"
+    ]
+  },
+  {
+    "Field": "AbidesByLocalDefensibleSpaceOrdinances",
+    "Description": [
+      "Abides by Local Defensible Space Ordinances Discount"
+    ]
+  },
+  {
+    "Field": "ClassAFireRatedRoof",
+    "Description": [
+      "Class-A Fire Rated Roof Discount"
+    ]
+  },
+  {
+    "Field": "EnclosedEaves",
+    "Description": [
+      "Enclosed Eaves Discount"
+    ]
+  },
+  {
+    "Field": "FireResistantVents",
+    "Description": [
+      "Fire Resistant Vents Discount"
+    ]
+  },
+  {
+    "Field": "MultipaneWindows",
+    "Description": [
+      "Multipane Windows Discount"
+    ]
+  },
+  {
+    "Field": "GreaterOrEqual6InchofNoncombustibleVertClearanceBlding",
+    "Description": [
+      ">=6 Inches of Noncombustible Vertical Clearance on Building Exterior from the Ground Discount"
+    ]
+  },
+  {
+    "Field": "Automated_Calls/Text",
+    "Description": [
+      "The customer has the option of receiving automated calls and/or text messages from us. Do we have the customer's permission to send autodialed pre-recorded and artificial voice calls and/or text"
+    ]
+  },
+  {
+    "Field": "Primary_Heating_Controlled",
+    "Description": [
+      "Is Primary Heating Thermostatically Controlled?"
+    ]
+  },
+  {
+    "Field": "Knob_Tube_Present",
+    "Description": [
+      "Active Knob and Tube Wiring Present?"
+    ]
+  },
+  {
+    "Field": "ArsonFraudUW",
+    "Description": [
+      "Has the applicant been convicted of arson, fraud, or other insurance-related offenses?"
+    ]
+  },
+  {
+    "Field": "SupportedOnRaisedPoles",
+    "Description": [
+      "Supported on raised poles or pilings over 6 feet?"
+    ]
+  },
+  {
+    "Field": "DwellingCondemned",
+    "Description": [
+      "Condemned?"
+    ]
+  },
+  {
+    "Field": "UnrepairedWaterDamage",
+    "Description": [
+      "Any water leaks or unrepaired water damage?",
+      "Are you aware of any water leaks or unrepaired water damage?"
+    ]
+  },
+  {
+    "Field": "UnrepairedWindowsOrDamage",
+    "Description": [
+      "Any broken or boarded-up windows, or any other unrepaired damage?"
+    ]
+  },
+  {
+    "Field": "WorkingUtilities",
+    "Description": [
+      "Currently have working utilities?"
+    ]
+  },
+  {
+    "Field": "LandslideForestBrushFire",
+    "Description": [
+      "In an area that is prone to or had a prior occurrence of landslide, forest fires, or brush fire?",
+      "In an area that is prone to or had a prior occurrence of landslide?"
+    ]
+  },
+  {
+    "Field": "IslandSeacoast",
+    "Description": [
+      "On an island, or within 1,000 feet of a seacoast, bay or sound?"
+    ]
+  },
+  {
+    "Field": "RiverLake",
+    "Description": [
+      "Located within 1,000 feet of a river or lake?"
+    ]
+  },
+  {
+    "Field": "IsolatedInaccessibleByRoad",
+    "Description": [
+      "Isolated and inaccessible by road?"
+    ]
+  },
+  {
+    "Field": "SwimmingPoolPremises",
+    "Description": [
+      "Swimming pool on the premises?"
+    ]
+  },
+  {
+    "Field": "SwimmingPoolFence",
+    "Description": [
+      "Pool enclosed by a fence at least 4 feet tall with locked gate, or can the steps and ladders to the pool be secured or removed when not in use?"
+    ]
+  },
+  {
+    "Field": "BusinessPremises",
+    "Description": [
+      "Business on the premises?"
+    ]
+  },
+  {
+    "Field": "BusinessEmployeesPremises",
+    "Description": [
+      "Are there any employees of the business working on the premises?"
+    ]
+  },
+  {
+    "Field": "BusinessIncreasedHazard",
+    "Description": [
+      "Does the business cause an increased property or liability hazard including, but not limited to: hazardous chemicals, pollutants, extreme heat or flame, a riding stable, or dog kennel?"
+    ]
+  },
+  {
+    "Field": "BusinessDaycare",
+    "Description": [
+      "Is the business a daycare?"
+    ]
+  },
+  {
+    "Field": "BusinessFootTraffic",
+    "Description": [
+      "Is there any business foot traffic?"
+    ]
+  },
+  {
+    "Field": "FarmingPremises",
+    "Description": [
+      "Farming conducted on the premises?"
+    ]
+  },
+  {
+    "Field": "FarmingReceiptsExceed",
+    "Description": [
+      "Do gross farm receipts exceed $5000?"
+    ]
+  },
+  {
+    "Field": "AnimalsOwnCare",
+    "Description": [
+      "Does the applicant, or does any resident of the dwelling to be insured, own or care for any animals?"
+    ]
+  },
+  {
+    "Field": "AnimalsBiteHistoryWildExotic",
+    "Description": [
+      "Do any of the animals have a previous bite history or vicious propensities; or are any of the animals wild or exotic?",
+      "Do any of the animals have a previous bite history or vicious propensities that required professional medical treatment or attention; or are any of the animals wild or exotic?",
+      "Do any of the dogs have a prior history of biting or attacking persons, property or other animals as established through insurance claims records, or through the records of local public safety, law enforcement or other similar regulatory agency?"
+    ]
+  },
+  {
+    "Field": "AnimalsSpecificBreeds",
+    "Description": [
+      "Are any of the dogs on the premises trained to attack persons, property or other animals or trained to guard persons or property?",
+      "Are any of the animals on the premises the following types of pure bred dogs: American Staffordshire Terriers, American Pit Bull Terriers, or Staffordshire Bull Terriers, all commonly known as Pit Bulls or Dobermans Pinschers, Presa Canario, Rottweilers, Chows, or wolves?",
+      "Are any of the animals Dobermans, Chows, Rottweilers, Pit Bulls, Akitas, wolves or wolf hybrids or any mix of these breeds?"
+    ]
+  },
+  {
+    "Field": "DogsTrainedToAttackOrGuard",
+    "Description": [
+      "Are any of the dogs on the premises used in any manner, as a fighting dog or bred specifically for fighting?",
+      "Are any of the dogs on the premises trained to attack persons, property or other animals or trained to guard persons or property?"
+    ]
+  },
+  {
+    "Field": "DogUsedForFighting",
+    "Description": [
+      "Are any of the dogs on the premises not inoculated as required by law?",
+      "Are any of the dogs on the premises used in any manner, as a fighting dog or bred specifically for fighting?"
+    ]
+  },
+  {
+    "Field": "DogNotInoculatedAsRequiredByLaw",
+    "Description": [
+      "Are any of the animals on the premises the following types of pure bred dogs: American Staffordshire Terriers, American Pit Bull Terriers, or Staffordshire Bull Terriers, all commonly known as Pit Bulls or Dobermans Pinschers, Presa Canario, Rottweilers, Chows, or wolves?",
+      "Are any of the dogs on the premises not inoculated as required by law?"
+    ]
+  },
+  {
+    "Field": "AnimalsFarm",
+    "Description": [
+      "Are any of the animals farm animals?"
+    ]
+  },
+  {
+    "Field": "AnimalsFarmNumberHorses",
+    "Description": [
+      "Horses"
+    ]
+  },
+  {
+    "Field": "AnimalsFarmNumberCowsDonkeys",
+    "Description": [
+      "Cows, Donkeys"
+    ]
+  },
+  {
+    "Field": "AnimalsFarmNumberSmallAnimals",
+    "Description": [
+      "Small Animals (Chickens, Goats, etc.)"
+    ]
+  },
+  {
+    "Field": "AnimalsFarmNumberEmusOstrichesLlamas",
+    "Description": [
+      "Emus, Ostriches, Llamas"
+    ]
+  },
+  {
+    "Field": "AnimalsFarmNumberOther",
+    "Description": [
+      "Other"
+    ]
+  },
+  {
+    "Field": "DeniedClaimDueToArsonFraud",
+    "Description": [
+      "Has the applicant been denied within the last 5 years, payment by an insurer of a claim under a home insurance policy (in excess of $2,000) because of evidence of arson, conspiracy to commit arson, misrepresentation, fraud, or conspiracy to commit fraud, and was the amount of the claim denied greater than:\r\n\r\n1)  15% of the amount of insurance in force under a Repair Cost Policy, or \r\n2)  10% of the amount of insurance in force under a Replacement Cost Policy?    "
+    ]
+  },
+  {
+    "Field": "AnimalBittenInjuredSomeone",
+    "Description": [
+      "Is there a dog or other domestic animal on the premises that has bitten or injured someone?"
+    ]
+  },
+  {
+    "Field": "ClaimPaidResultOFAnimal",
+    "Description": [
+      "Was there a paid claim?"
+    ]
+  },
+  {
+    "Field": "NonDomesticAnimalsOnPremises",
+    "Description": [
+      "Are there any non-domestic animals (alligators, lions, tigers, snakes, chimpanzees, etc.) on the premises?"
+    ]
+  },
+  {
+    "Field": "PermanentFoundation",
+    "Description": [
+      "Is the dwelling on a permanent foundation?"
+    ]
+  },
+  {
+    "Field": "Pre-Approvable UVR",
+    "Description": [
+      "You have indicated that you wish to backdate this submission prior to the original date the submission was created. Please change the effective date or document explanation and submit to underwriting for review.",
+      "You have indicated that you wish to backdate this submission more than 30 days from the current date. Please document explanation and submit to underwriting for review.",
+      "Policies with open claims require underwriting review.",
+      "Dwelling #X:  You have selected a Storm Mitigation Discount.  Underwriting approval will be required prior to issuance.  For issuance, a signed certification of compliance in accordance with the Fortified For Safer Living Standards must be submitted to Underwriting for review. Upload the completed document prior to submitting for review. ",
+      "Dwelling #X: You have selected a Storm Mitigation Discount.  Underwriting approval will be required prior to issuance.  For issuance, a copy of the Inspection Certificate issued by a licensed contractor or governmental agency must be submitted to Underwriting for review.  This may be a general inspection certificate provided by the licensed contractor or governmental agency.  Inspection certificate should include the contractor name, business name and license number.  (This will allow us to validate license, if necessary.)  In New York, form IP-NY-N-0006 may be used.  Upload the completed document prior to submitting for review.",
+      "Dwelling #: You have selected a Windstorm Mitigation discount. Underwriting approval will be required prior to issuance.  A copy of the proper designation certificate from the IBHS is required for the IBHS Hurricane Fortified discounts.  Proof of installation is required for the Total Hip Roof or Opening Protection discounts.  For issuance, these must be submitted to Underwriting for review.  Upload the complete documentation prior to submitting for review. "
+    ]
+  }
+]

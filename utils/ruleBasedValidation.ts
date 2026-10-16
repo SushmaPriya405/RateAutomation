@@ -73,23 +73,32 @@ function getStandardUWKeyPhrasesFromHelpSheet(): string[] {
     let currentSection = "";
     let preApprovableRowCount = 0;
 
-    for (const [rowIndex, row] of helpRows.entries()) {
-      const sectionValue = sectionColumns
-        .map((col) => String(row[col] ?? "").trim())
-        .find((value) => value.length > 0);
-
-      if (sectionValue) {
-        currentSection = normalize(sectionValue);
+    const jsonSection = helpRows.find((row) => normalize(row["Field"]) === normalize(targetSection));
+    if (jsonSection) {
+      const descriptions = Array.isArray(jsonSection["Description"])
+        ? jsonSection["Description"]
+        : [jsonSection["Description"]];
+      for (const description of descriptions) {
+        const phrase = String(description ?? "").trim();
+        if (!phrase) continue;
+        extracted.push(phrase);
+        preApprovableRowCount++;
       }
+    } else {
+      for (const row of helpRows) {
+        const sectionValue = sectionColumns
+          .map((col) => String(row[col] ?? "").trim())
+          .find((value) => value.length > 0);
 
-      if (currentSection !== normalize(targetSection)) continue;
-      preApprovableRowCount++;
+        if (sectionValue) currentSection = normalize(sectionValue);
+        if (currentSection !== normalize(targetSection)) continue;
+        preApprovableRowCount++;
 
-      // For Pre-Approvable UVR, only extract from the "Field" column
-      const fieldValue = String(row["Field"] ?? "").trim();
-      if (fieldValue && normalize(fieldValue) !== targetSection) {
-        extracted.push(fieldValue);
-        console.log(`🧾 Pre-Approvable UVR rule ${preApprovableRowCount}: "${fieldValue.substring(0, 100)}..."`);
+        const fieldValue = String(row["Field"] ?? "").trim();
+        if (fieldValue && normalize(fieldValue) !== normalize(targetSection)) {
+          extracted.push(fieldValue);
+          console.log(`🧾 Pre-Approvable UVR rule ${preApprovableRowCount}: "${fieldValue.substring(0, 100)}..."`);
+        }
       }
     }
 
